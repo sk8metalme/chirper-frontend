@@ -558,6 +558,22 @@ public class BackendApiRepositoryImpl implements IBackendApiRepository {
 
 #### 3.2 API Clients
 
+**設計上の注意: WebClient `block()` の使用について**
+
+このアプリケーションは**Spring MVC（同期モデル）**を採用しているため、WebClientの`block()`メソッドを使用して同期的にレスポンスを取得しています。これはリアクティブプログラミングの観点からはアンチパターンですが、以下の理由により正当化されます：
+
+1. **アーキテクチャの整合性**: Spring MVCコントローラは同期的にレスポンスを返す必要があります。Thymeleafテンプレートエンジンも同期的なデータバインディングを前提としています。
+
+2. **チームの技術スタック**: Backend Service側も同期モデル（Spring MVC）を採用しており、チーム全体で統一されたプログラミングモデルを維持することで、学習コストと認知負荷を低減します。
+
+3. **シンプルさの優先**: この段階ではフルリアクティブスタック（Spring WebFlux + Reactor）の複雑さを導入せず、理解しやすい同期モデルで実装します。
+
+4. **パフォーマンス要件**: 現時点のスループット要件では、スレッドプールベースの同期モデルで十分です。将来的にスケーラビリティが課題になった場合は、Spring WebFluxへの移行を検討します。
+
+**代替案の検討**:
+- `RestTemplate`の使用も検討しましたが、Spring 5以降は非推奨（deprecated）であり、WebClientが推奨されています。
+- WebClientは非同期処理のサポートも提供するため、将来的なリアクティブ化への移行パスを残しています。
+
 ##### TimelineApiClient
 ```java
 package com.chirper.frontend.infrastructure.client;

@@ -44,4 +44,5 @@ it('does X when Y', () => {
 - Enforce thresholds in CI; exceptions require review rationale
 
 ---
-_Focus on patterns and decisions. Tool-specific config lives elsewhere._
+
+> Focus on patterns and decisions. Tool-specific config lives elsewhere.
