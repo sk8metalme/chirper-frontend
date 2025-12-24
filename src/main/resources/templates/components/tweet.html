@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+    <!-- ツイート表示コンポーネント -->
+    <div th:fragment="tweet(tweet)" class="card mb-3">
+        <div class="card-body">
+            <!-- ユーザー情報 -->
+            <div class="d-flex align-items-center mb-2">
+                <img th:src="${tweet.avatarUrl != null ? tweet.avatarUrl : '/images/default-avatar.png'}"
+                     class="rounded-circle me-2"
+                     alt="Avatar"
+                     width="40"
+                     height="40">
+                <div>
+                    <h6 class="mb-0" th:text="${tweet.displayName}">Display Name</h6>
+                    <small class="text-muted">@<span th:text="${tweet.username}">username</span></small>
+                </div>
+            </div>
+
+            <!-- ツイート内容 (ハイライト済みHTML) -->
+            <p class="card-text mb-2" th:utext="${tweet.content.toHighlightedHtml()}">Tweet content</p>
+
+            <!-- タイムスタンプ -->
+            <small class="text-muted" th:text="${tweet.timestamp.format()}">timestamp</small>
+
+            <!-- アクションボタン -->
+            <div class="d-flex gap-3 mt-3">
+                <!-- いいね -->
+                <form th:action="@{/tweets/{id}/like(id=${tweet.tweetId})}" method="post" class="d-inline">
+                    <button type="submit"
+                            class="btn btn-sm"
+                            th:classappend="${tweet.likedByCurrentUser ? 'btn-danger' : 'btn-outline-secondary'}">
+                        <span th:if="${tweet.likedByCurrentUser}">❤️</span>
+                        <span th:unless="${tweet.likedByCurrentUser}">🤍</span>
+                        <span th:text="${tweet.likeCount}">0</span>
+                    </button>
+                </form>
+
+                <!-- リツイート -->
+                <form th:action="@{/tweets/{id}/retweet(id=${tweet.tweetId})}" method="post" class="d-inline">
+                    <button type="submit"
+                            class="btn btn-sm"
+                            th:classappend="${tweet.retweetedByCurrentUser ? 'btn-success' : 'btn-outline-secondary'}">
+                        <span>🔁</span>
+                        <span th:text="${tweet.retweetCount}">0</span>
+                    </button>
+                </form>
+
+                <!-- 削除ボタン (自分のツイートのみ) -->
+                <!-- TODO: 現在のユーザーIDと比較して表示制御 -->
+                <form th:action="@{/tweets/{id}/delete(id=${tweet.tweetId})}" method="post" class="d-inline ms-auto">
+                    <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('このツイートを削除しますか?')">
+                        削除
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

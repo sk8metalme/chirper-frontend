@@ -16,20 +16,34 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-            // TODO: Phase 2 (Presentation Layer) 実装時にCSRF保護を有効化する
-            // 現在はAPIクライアントのみのため無効化しているが、
-            // Thymeleafフォームを実装する際は必ず有効化すること
-            .csrf(csrf -> csrf.disable())
-            .authorizeHttpRequests(auth -> auth
-                // Phase 1: APIクライアントのみのため、全てのリクエストを許可
-                // TODO: Phase 2でコントローラー実装時に適切な認証設定を追加
-                .anyRequest().permitAll()
+            // Phase 2: CSRF保護を有効化(Thymeleafフォームで使用)
+            .csrf(csrf -> csrf
+                .ignoringRequestMatchers("/api/**") // API エンドポイントは除外 (将来の拡張用)
             )
-            // Phase 1ではカスタムログイン処理を使用（Presentation Layer未実装）
-            .formLogin(form -> form.disable())
-            // Phase 1ではセッション管理は不要（JWTトークンベース認証）
+            .authorizeHttpRequests(auth -> auth
+                // 公開ページ
+                .requestMatchers("/", "/login", "/register", "/error/**").permitAll()
+                // 静的リソース
+                .requestMatchers("/css/**", "/js/**", "/images/**").permitAll()
+                // その他は認証が必要
+                .anyRequest().authenticated()
+            )
+            // Phase 2: フォームログインを有効化
+            .formLogin(form -> form
+                .loginPage("/login")
+                .permitAll()
+                .defaultSuccessUrl("/timeline", true)
+                .failureUrl("/login?error=true")
+            )
+            // ログアウト設定
+            .logout(logout -> logout
+                .logoutUrl("/logout")
+                .logoutSuccessUrl("/")
+                .permitAll()
+            )
+            // セッション管理 (JWTトークンベース認証)
             .sessionManagement(session -> session
-                .sessionFixation().none()
+                .sessionFixation().changeSessionId()  // セッション固定攻撃対策
             );
 
         return http.build();

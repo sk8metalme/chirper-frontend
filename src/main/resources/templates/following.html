@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${username} + 'のフォロー中 | Chirper'">フォロー中 | Chirper</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <!-- Navbar -->
+    <div th:replace="~{components/navbar :: navbar}"></div>
+
+    <!-- Flash messages -->
+    <div class="container mt-3">
+        <div class="alert alert-success alert-dismissible fade show" role="alert" th:if="${success}">
+            <span th:text="${success}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        <div class="alert alert-danger alert-dismissible fade show" role="alert" th:if="${error}">
+            <span th:text="${error}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    </div>
+
+    <!-- Main content -->
+    <main class="container mt-4">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-header">
+                        <h4 class="mb-0">
+                            <a th:href="@{/profile/{username}(username=${username})}"
+                               class="text-decoration-none"
+                               th:text="'@' + ${username}">@username</a>
+                            のフォロー中
+                        </h4>
+                    </div>
+                    <div class="card-body">
+                        <!-- フォロー中一覧 -->
+                        <div th:if="${following.isEmpty()}" class="text-center py-5">
+                            <p class="text-muted">フォロー中一覧は今後実装予定です。</p>
+                            <p class="text-muted small">Phase 2.5 で実装予定</p>
+                        </div>
+
+                        <!-- TODO: Phase 2.5 - フォロー中一覧の実装 -->
+                        <div th:unless="${following.isEmpty()}">
+                            <div th:each="user : ${following}" class="border-bottom py-3">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h5 class="mb-1">
+                                            <a th:href="@{/profile/{username}(username=${user.username})}"
+                                               th:text="${user.username}">
+                                                ユーザー名
+                                            </a>
+                                        </h5>
+                                        <p class="text-muted mb-0" th:text="${user.bio}">自己紹介</p>
+                                    </div>
+                                    <div>
+                                        <!-- アンフォローボタン -->
+                                        <button class="btn btn-outline-primary btn-sm">フォロー中</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-3">
+                    <a th:href="@{/profile/{username}(username=${username})}" class="btn btn-secondary">
+                        プロフィールに戻る
+                    </a>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="mt-5 py-3 bg-light">
+        <div class="container text-center text-muted">
+            <p>&copy; 2025 Chirper. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script th:src="@{/js/app.js}"></script>
+</body>
+</html>

@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+    <!-- ツイート投稿フォームコンポーネント -->
+    <div th:fragment="tweetForm(tweetForm)" class="card mb-4">
+        <div class="card-body">
+            <h5 class="card-title">ツイートを投稿</h5>
+
+            <form th:action="@{/tweets}" method="post" th:object="${tweetForm}">
+                <!-- ツイート内容 -->
+                <div class="mb-3">
+                    <textarea class="form-control"
+                              id="content"
+                              rows="3"
+                              th:field="*{content}"
+                              th:errorclass="is-invalid"
+                              placeholder="いまどうしてる?"></textarea>
+                    <div class="invalid-feedback" th:if="${#fields.hasErrors('content')}" th:errors="*{content}">
+                        ツイート内容エラー
+                    </div>
+                    <!-- 文字カウント -->
+                    <small class="text-muted">
+                        <span id="charCount">0</span> / 280 文字
+                    </small>
+                </div>
+
+                <!-- 投稿ボタン -->
+                <div class="d-grid">
+                    <button type="submit" class="btn btn-primary">ツイート</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // 文字カウント機能
+        document.addEventListener('DOMContentLoaded', function() {
+            const contentField = document.getElementById('content');
+            const charCount = document.getElementById('charCount');
+
+            if (contentField && charCount) {
+                contentField.addEventListener('input', function() {
+                    charCount.textContent = this.value.length;
+                });
+
+                // 初期値を設定
+                charCount.textContent = contentField.value.length;
+            }
+        });
+    </script>
+</body>
+</html>
