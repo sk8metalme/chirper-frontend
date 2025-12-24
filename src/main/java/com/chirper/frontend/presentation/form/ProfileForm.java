@@ -1,7 +1,6 @@
 package com.chirper.frontend.presentation.form;
 
 import jakarta.validation.constraints.Size;
-import org.hibernate.validator.constraints.URL;
 
 /**
  * プロフィール編集フォーム
@@ -13,7 +12,9 @@ public record ProfileForm(
         @Size(max = 160, message = "自己紹介は160文字以内で入力してください")
         String bio,
 
-        @URL(message = "有効なURLを入力してください")
+        // アバターURLは任意（空文字列を許可）
+        // クライアントサイド（HTML type="url"）でURL形式を検証
+        @Size(max = 500, message = "URLは500文字以内で入力してください")
         String avatarUrl
 ) {
 }
