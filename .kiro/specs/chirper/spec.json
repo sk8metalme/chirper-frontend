@@ -1,10 +1,10 @@
 {
   "feature": "chirper",
   "description": "chirper frontend - Spring Boot + Thymeleaf with Bootstrap",
-  "status": "design",
+  "status": "tasks-generated",
   "language": "ja",
   "createdAt": "2025-12-23T05:54:00.000Z",
-  "updatedAt": "2025-12-23T06:00:00.000Z",
+  "updatedAt": "2025-12-24T00:00:00.000Z",
   "jira": {
     "project": "PC",
     "space": "MICHI"
@@ -17,10 +17,11 @@
     "0.5-design": "completed",
     "0.6-jira-sync": "pending",
     "0.7-confluence-sync": "pending",
-    "1-tasks": "pending",
-    "2-implementation": "pending",
+    "1-tasks": "completed",
+    "2-implementation": "in-progress",
     "3-quality-assurance": "pending",
     "4-release-preparation": "pending",
     "5-release": "pending"
-  }
+  },
+  "ready_for_implementation": true
 }

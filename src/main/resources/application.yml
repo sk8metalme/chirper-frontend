@@ -1,0 +1,37 @@
+spring:
+  application:
+    name: chirper-frontend
+
+  thymeleaf:
+    cache: false
+    mode: HTML
+    encoding: UTF-8
+
+  security:
+    user:
+      name: user
+      password: password
+
+  session:
+    timeout: 1h
+    cookie:
+      http-only: true
+      secure: false
+      same-site: strict
+
+server:
+  port: 8081
+
+backend:
+  api:
+    base-url: ${BACKEND_API_BASE_URL:http://localhost:8080}
+
+jwt:
+  signing-key: ${JWT_SIGNING_KEY:your-secret-key-change-in-production}
+
+logging:
+  level:
+    com.chirper.frontend: INFO
+    org.springframework.web: DEBUG
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
