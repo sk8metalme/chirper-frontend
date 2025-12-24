@@ -34,7 +34,7 @@ public class TweetController {
      */
     @PostMapping("/tweets")
     public String submitTweet(
-            @Valid @ModelAttribute TweetForm tweetForm,
+            @Valid @ModelAttribute("tweetForm") TweetForm tweetForm,
             BindingResult bindingResult,
             HttpServletRequest request,
             RedirectAttributes redirectAttributes
@@ -42,6 +42,9 @@ public class TweetController {
         // バリデーションエラーがある場合
         if (bindingResult.hasErrors()) {
             redirectAttributes.addFlashAttribute("error", "ツイート内容に誤りがあります");
+            // フォームデータを保持してリダイレクト
+            redirectAttributes.addFlashAttribute("org.springframework.validation.BindingResult.tweetForm", bindingResult);
+            redirectAttributes.addFlashAttribute("tweetForm", tweetForm);
             return "redirect:/timeline";
         }
 

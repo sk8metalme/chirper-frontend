@@ -10,6 +10,10 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.List;
+
 /**
  * ソーシャル機能コントローラー
  */
@@ -44,11 +48,10 @@ public class SocialController {
         }
 
         // リファラーにリダイレクト（前のページに戻る）
+        // オープンリダイレクト対策: 内部URLのみ許可
         String referer = request.getHeader("Referer");
-        if (referer != null && !referer.isEmpty()) {
-            return "redirect:" + referer;
-        }
-        return "redirect:/timeline";
+        String redirectUrl = validateAndGetRedirectUrl(referer);
+        return "redirect:" + redirectUrl;
     }
 
     /**
@@ -68,11 +71,10 @@ public class SocialController {
         }
 
         // リファラーにリダイレクト（前のページに戻る）
+        // オープンリダイレクト対策: 内部URLのみ許可
         String referer = request.getHeader("Referer");
-        if (referer != null && !referer.isEmpty()) {
-            return "redirect:" + referer;
-        }
-        return "redirect:/timeline";
+        String redirectUrl = validateAndGetRedirectUrl(referer);
+        return "redirect:" + redirectUrl;
     }
 
     /**
@@ -95,5 +97,46 @@ public class SocialController {
         model.addAttribute("username", username);
         model.addAttribute("following", java.util.Collections.emptyList());
         return "following";
+    }
+
+    /**
+     * Refererヘッダーを検証し、安全なリダイレクトURLを返す
+     * オープンリダイレクト対策: 内部URLのみ許可
+     *
+     * @param referer Refererヘッダー
+     * @return 検証済みのリダイレクトURL
+     */
+    private String validateAndGetRedirectUrl(String referer) {
+        // Refererが空の場合はデフォルト
+        if (referer == null || referer.isBlank()) {
+            return "/timeline";
+        }
+
+        try {
+            URI uri = new URI(referer);
+            String path = uri.getPath();
+
+            // 許可するパスのホワイトリスト
+            List<String> allowedPaths = List.of(
+                    "/timeline",
+                    "/profile",
+                    "/users/"  // 他のユーザーのプロフィール
+            );
+
+            // パスが許可リストのいずれかで始まるかチェック
+            if (path != null) {
+                for (String allowedPath : allowedPaths) {
+                    if (path.startsWith(allowedPath)) {
+                        return path;
+                    }
+                }
+            }
+
+            // 許可されていない場合はデフォルト
+            return "/timeline";
+        } catch (URISyntaxException e) {
+            // 不正なURIの場合はデフォルト
+            return "/timeline";
+        }
     }
 }

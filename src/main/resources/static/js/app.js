@@ -100,19 +100,6 @@ function initFollowButtonConfirmation() {
 }
 
 /**
- * ハッシュタグとメンションのハイライト（将来実装用）
- */
-function highlightHashtagsAndMentions(text) {
-    // ハッシュタグをハイライト
-    text = text.replace(/#(\w+)/g, '<a href="/search?q=%23$1" class="hashtag">#$1</a>');
-
-    // メンションをハイライト
-    text = text.replace(/@(\w+)/g, '<a href="/profile/$1" class="mention">@$1</a>');
-
-    return text;
-}
-
-/**
  * 画像プレビュー機能（将来実装用）
  */
 function initImagePreview() {

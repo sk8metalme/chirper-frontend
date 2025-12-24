@@ -31,6 +31,10 @@ public class TimelineController {
             HttpServletRequest request,
             Model model
     ) {
+        // パラメータバリデーション（負の値や過大値を防ぐ）
+        page = Math.max(0, page);
+        size = Math.max(1, Math.min(100, size));  // 1〜100の範囲に制限
+
         // タイムラインを取得
         TimelineViewModel timeline = displayTimelineUseCase.execute(request, page, size);
 

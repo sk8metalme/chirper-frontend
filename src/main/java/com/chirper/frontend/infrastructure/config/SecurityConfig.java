@@ -43,7 +43,7 @@ public class SecurityConfig {
             )
             // セッション管理 (JWTトークンベース認証)
             .sessionManagement(session -> session
-                .sessionFixation().none()
+                .sessionFixation().changeSessionId()  // セッション固定攻撃対策
             );
 
         return http.build();

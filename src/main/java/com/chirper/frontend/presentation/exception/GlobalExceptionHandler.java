@@ -41,8 +41,8 @@ public class GlobalExceptionHandler {
                 .reduce((a, b) -> a + ", " + b)
                 .orElse("バリデーションエラーが発生しました");
         redirectAttributes.addFlashAttribute("error", errorMessage);
-        // Refererヘッダーからリダイレクト先を決定するか、デフォルトでホームへ
-        return "redirect:/";
+        // デフォルトでタイムラインへリダイレクト（ホームよりもユーザーフレンドリー）
+        return "redirect:/timeline";
     }
 
     /**

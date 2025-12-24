@@ -19,9 +19,7 @@ public class JwtSessionManager {
      * セッションにJWTトークンを保存
      */
     public void saveJwtToken(HttpServletRequest request, String jwtToken, String userId) {
-        HttpSession session = request.getSession(true);
-        session.setAttribute(JWT_TOKEN_ATTRIBUTE, jwtToken);
-        session.setAttribute(USER_ID_ATTRIBUTE, userId);
+        saveJwtToken(request, jwtToken, userId, null);
     }
 
     /**
@@ -31,7 +29,9 @@ public class JwtSessionManager {
         HttpSession session = request.getSession(true);
         session.setAttribute(JWT_TOKEN_ATTRIBUTE, jwtToken);
         session.setAttribute(USER_ID_ATTRIBUTE, userId);
-        session.setAttribute(USERNAME_ATTRIBUTE, username);
+        if (username != null) {
+            session.setAttribute(USERNAME_ATTRIBUTE, username);
+        }
     }
 
     /**

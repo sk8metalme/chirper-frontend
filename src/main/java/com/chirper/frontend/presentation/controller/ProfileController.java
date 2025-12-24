@@ -89,15 +89,17 @@ public class ProfileController {
      */
     @PostMapping("/profile/edit")
     public String updateProfile(
-            @Valid @ModelAttribute ProfileForm profileForm,
+            @Valid @ModelAttribute("profileForm") ProfileForm profileForm,
             BindingResult bindingResult,
             HttpServletRequest request,
+            Model model,
             RedirectAttributes redirectAttributes
     ) {
         // バリデーションエラーがある場合
         if (bindingResult.hasErrors()) {
-            redirectAttributes.addFlashAttribute("error", "入力内容に誤りがあります");
-            return "redirect:/profile/edit";
+            model.addAttribute("error", "入力内容に誤りがあります");
+            // リダイレクトせず、直接ビューを返す（フォームデータを保持）
+            return "profile-edit";
         }
 
         try {
