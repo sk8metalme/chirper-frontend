@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${profile.username} + ' | Chirper'">プロフィール | Chirper</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <!-- Navbar -->
+    <div th:replace="~{components/navbar :: navbar}"></div>
+
+    <!-- Flash messages -->
+    <div class="container mt-3">
+        <div class="alert alert-success alert-dismissible fade show" role="alert" th:if="${success}">
+            <span th:text="${success}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        <div class="alert alert-danger alert-dismissible fade show" role="alert" th:if="${error}">
+            <span th:text="${error}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    </div>
+
+    <!-- Main content -->
+    <main class="container mt-4">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <!-- プロフィールカード -->
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <div class="row">
+                            <!-- プロフィール情報 -->
+                            <div class="col-md-12">
+                                <div class="d-flex justify-content-between align-items-start mb-3">
+                                    <div>
+                                        <h2 class="card-title mb-1" th:text="${profile.username}">ユーザー名</h2>
+                                        <p class="text-muted mb-2" th:text="'@' + ${profile.username}">@username</p>
+                                    </div>
+                                    <!-- 編集ボタン（自分のプロフィールの場合のみ表示） -->
+                                    <div>
+                                        <a th:href="@{/profile/edit}" class="btn btn-outline-primary">
+                                            プロフィールを編集
+                                        </a>
+                                    </div>
+                                </div>
+
+                                <!-- 自己紹介 -->
+                                <p class="card-text mb-3" th:if="${profile.bio != null and !profile.bio.isEmpty()}" th:text="${profile.bio}">
+                                    自己紹介文がここに表示されます。
+                                </p>
+                                <p class="card-text text-muted mb-3" th:if="${profile.bio == null or profile.bio.isEmpty()}">
+                                    自己紹介がまだ設定されていません。
+                                </p>
+
+                                <!-- メールアドレス -->
+                                <div class="mb-3">
+                                    <i class="bi bi-envelope"></i>
+                                    <span class="text-muted" th:text="${profile.email}">email@example.com</span>
+                                </div>
+
+                                <!-- フォロワー・フォロー数 -->
+                                <div class="d-flex gap-4">
+                                    <div>
+                                        <a href="#" class="text-decoration-none text-dark">
+                                            <span class="fw-bold" th:text="${profile.followingCount}">0</span>
+                                            <span class="text-muted">フォロー中</span>
+                                        </a>
+                                    </div>
+                                    <div>
+                                        <a href="#" class="text-decoration-none text-dark">
+                                            <span class="fw-bold" th:text="${profile.followerCount}">0</span>
+                                            <span class="text-muted">フォロワー</span>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ユーザーのツイート一覧 -->
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">ツイート</h5>
+                    </div>
+                    <div class="card-body">
+                        <!-- TODO: ユーザーのツイート一覧を表示 (Phase 2.5 or later) -->
+                        <p class="text-muted text-center py-4">
+                            ユーザーのツイート一覧は今後実装予定です。
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="mt-5 py-3 bg-light">
+        <div class="container text-center text-muted">
+            <p>&copy; 2025 Chirper. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script th:src="@{/js/app.js}"></script>
+</body>
+</html>

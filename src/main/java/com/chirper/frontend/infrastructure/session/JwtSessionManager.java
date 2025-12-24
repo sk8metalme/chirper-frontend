@@ -13,6 +13,7 @@ public class JwtSessionManager {
 
     private static final String JWT_TOKEN_ATTRIBUTE = "JWT_TOKEN";
     private static final String USER_ID_ATTRIBUTE = "USER_ID";
+    private static final String USERNAME_ATTRIBUTE = "USERNAME";
 
     /**
      * セッションにJWTトークンを保存
@@ -21,6 +22,16 @@ public class JwtSessionManager {
         HttpSession session = request.getSession(true);
         session.setAttribute(JWT_TOKEN_ATTRIBUTE, jwtToken);
         session.setAttribute(USER_ID_ATTRIBUTE, userId);
+    }
+
+    /**
+     * セッションにJWTトークンとユーザー情報を保存
+     */
+    public void saveJwtToken(HttpServletRequest request, String jwtToken, String userId, String username) {
+        HttpSession session = request.getSession(true);
+        session.setAttribute(JWT_TOKEN_ATTRIBUTE, jwtToken);
+        session.setAttribute(USER_ID_ATTRIBUTE, userId);
+        session.setAttribute(USERNAME_ATTRIBUTE, username);
     }
 
     /**
@@ -43,6 +54,17 @@ public class JwtSessionManager {
             return null;
         }
         return (String) session.getAttribute(USER_ID_ATTRIBUTE);
+    }
+
+    /**
+     * セッションからユーザー名を取得
+     */
+    public String getUsername(HttpServletRequest request) {
+        HttpSession session = request.getSession(false);
+        if (session == null) {
+            return null;
+        }
+        return (String) session.getAttribute(USERNAME_ATTRIBUTE);
     }
 
     /**

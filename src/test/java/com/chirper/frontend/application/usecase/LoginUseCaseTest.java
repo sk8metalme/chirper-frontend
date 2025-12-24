@@ -65,7 +65,7 @@ class LoginUseCaseTest {
         assertNotNull(response);
         assertEquals(jwtToken, response.jwtToken());
         assertEquals(userId, response.userId());
-        verify(sessionManager).saveJwtToken(request, jwtToken, userId);
+        verify(sessionManager).saveJwtToken(request, jwtToken, userId, username);
     }
 
     @Test
@@ -88,7 +88,7 @@ class LoginUseCaseTest {
 
         assertEquals(2, exception.getErrors().size());
         verify(apiRepository, never()).login(any(), any());
-        verify(sessionManager, never()).saveJwtToken(any(), any(), any());
+        verify(sessionManager, never()).saveJwtToken(any(), any(), any(), any());
     }
 
     @Test
@@ -108,7 +108,7 @@ class LoginUseCaseTest {
         );
 
         assertEquals("ユーザー名またはパスワードが正しくありません", exception.getMessage());
-        verify(sessionManager, never()).saveJwtToken(any(), any(), any());
+        verify(sessionManager, never()).saveJwtToken(any(), any(), any(), any());
     }
 
     @Test
@@ -128,6 +128,6 @@ class LoginUseCaseTest {
         );
 
         assertEquals("Server error", exception.getMessage());
-        verify(sessionManager, never()).saveJwtToken(any(), any(), any());
+        verify(sessionManager, never()).saveJwtToken(any(), any(), any(), any());
     }
 }

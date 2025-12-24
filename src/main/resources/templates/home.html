@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chirper - ホーム</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <!-- Navbar -->
+    <div th:replace="~{components/navbar :: navbar}"></div>
+
+    <!-- Flash messages -->
+    <div class="container mt-3">
+        <div class="alert alert-success alert-dismissible fade show" role="alert" th:if="${success}">
+            <span th:text="${success}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        <div class="alert alert-danger alert-dismissible fade show" role="alert" th:if="${error}">
+            <span th:text="${error}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    </div>
+
+    <!-- Main content -->
+    <main class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-md-8 text-center">
+                <h1 class="display-4 mb-4">Chirper へようこそ</h1>
+                <p class="lead mb-4">あなたの声を世界に届けよう</p>
+
+                <!-- 未認証時の表示 -->
+                <div sec:authorize="!isAuthenticated()">
+                    <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
+                        <a th:href="@{/register}" class="btn btn-primary btn-lg px-4 gap-3">新規登録</a>
+                        <a th:href="@{/login}" class="btn btn-outline-secondary btn-lg px-4">ログイン</a>
+                    </div>
+                </div>
+
+                <!-- 認証済み時の表示 -->
+                <div sec:authorize="isAuthenticated()">
+                    <a th:href="@{/timeline}" class="btn btn-primary btn-lg">タイムラインへ</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Feature section -->
+        <div class="row mt-5 g-4">
+            <div class="col-md-4">
+                <div class="card h-100">
+                    <div class="card-body text-center">
+                        <h5 class="card-title">シンプルな投稿</h5>
+                        <p class="card-text">280文字以内で、あなたの思いを簡潔に伝えましょう</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card h-100">
+                    <div class="card-body text-center">
+                        <h5 class="card-title">つながる</h5>
+                        <p class="card-text">興味のあるユーザーをフォローして、最新の投稿をチェック</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card h-100">
+                    <div class="card-body text-center">
+                        <h5 class="card-title">共感する</h5>
+                        <p class="card-text">いいねやリツイートで、お気に入りの投稿をシェア</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="mt-5 py-3 bg-light">
+        <div class="container text-center text-muted">
+            <p>&copy; 2025 Chirper. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script th:src="@{/js/app.js}"></script>
+</body>
+</html>

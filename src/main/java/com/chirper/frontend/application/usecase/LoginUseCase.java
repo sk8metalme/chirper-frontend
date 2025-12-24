@@ -50,8 +50,8 @@ public class LoginUseCase {
         // 2. Backend APIでログイン
         LoginResponse response = apiRepository.login(username, password);
 
-        // 3. セッションに保存
-        sessionManager.saveJwtToken(request, response.jwtToken(), response.userId());
+        // 3. セッションに保存（ユーザー名も保存）
+        sessionManager.saveJwtToken(request, response.jwtToken(), response.userId(), username);
 
         return response;
     }
