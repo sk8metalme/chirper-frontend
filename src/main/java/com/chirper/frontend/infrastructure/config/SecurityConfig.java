@@ -22,22 +22,15 @@ public class SecurityConfig {
             )
             .authorizeHttpRequests(auth -> auth
                 // 公開ページ
-                .requestMatchers("/", "/login", "/register", "/error/**").permitAll()
+                .requestMatchers("/", "/login", "/register", "/logout", "/error/**").permitAll()
                 // 静的リソース
                 .requestMatchers("/css/**", "/js/**", "/images/**").permitAll()
                 // その他は認証が必要
                 .anyRequest().authenticated()
             )
-            // Phase 2: フォームログインを有効化
-            .formLogin(form -> form
-                .loginPage("/login")
-                .permitAll()
-                .defaultSuccessUrl("/timeline", true)
-                .failureUrl("/login?error=true")
-            )
-            // ログアウト設定
+            // ログアウト設定（AuthControllerが独自の認証・ログアウト処理を実装）
             .logout(logout -> logout
-                .logoutUrl("/logout")
+                .logoutUrl("/logout-deprecated")  // AuthControllerの/logoutと競合しないように変更
                 .logoutSuccessUrl("/")
                 .permitAll()
             )
