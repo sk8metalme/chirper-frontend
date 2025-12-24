@@ -2,9 +2,9 @@ package com.chirper.frontend.application.usecase;
 
 import com.chirper.frontend.application.dto.TimelineDto;
 import com.chirper.frontend.application.exception.UnauthorizedException;
+import com.chirper.frontend.application.service.ITimelineFormattingService;
 import com.chirper.frontend.domain.model.TimelineViewModel;
 import com.chirper.frontend.domain.repository.IBackendApiRepository;
-import com.chirper.frontend.domain.service.ITimelineFormattingService;
 import com.chirper.frontend.infrastructure.session.JwtSessionManager;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.stereotype.Service;

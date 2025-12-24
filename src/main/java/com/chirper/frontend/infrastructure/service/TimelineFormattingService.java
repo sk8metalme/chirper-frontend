@@ -1,9 +1,9 @@
 package com.chirper.frontend.infrastructure.service;
 
 import com.chirper.frontend.application.dto.TweetDto;
+import com.chirper.frontend.application.service.ITimelineFormattingService;
 import com.chirper.frontend.domain.model.TimelineViewModel;
 import com.chirper.frontend.domain.model.TweetViewModel;
-import com.chirper.frontend.domain.service.ITimelineFormattingService;
 import com.chirper.frontend.domain.valueobject.DisplayTimestamp;
 import com.chirper.frontend.domain.valueobject.TweetContent;
 import org.springframework.stereotype.Service;

@@ -9,6 +9,18 @@ public class Hashtag {
     private final int end;
 
     public Hashtag(String tag, int start, int end) {
+        if (tag == null || tag.isBlank()) {
+            throw new IllegalArgumentException("Hashtag tag cannot be null or empty");
+        }
+        if (start < 0) {
+            throw new IllegalArgumentException("Hashtag start position cannot be negative");
+        }
+        if (end < 0) {
+            throw new IllegalArgumentException("Hashtag end position cannot be negative");
+        }
+        if (start >= end) {
+            throw new IllegalArgumentException("Hashtag start position must be less than end position");
+        }
         this.tag = tag;
         this.start = start;
         this.end = end;

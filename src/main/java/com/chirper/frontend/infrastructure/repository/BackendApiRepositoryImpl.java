@@ -60,8 +60,7 @@ public class BackendApiRepositoryImpl implements IBackendApiRepository {
 
     @Override
     public UserProfileDto updateProfile(String jwtToken, String displayName, String bio, String avatarUrl) {
-        // TODO: BackendApiClientに実装を追加する必要がある
-        throw new UnsupportedOperationException("updateProfile is not yet implemented");
+        return apiClient.updateProfile(jwtToken, displayName, bio, avatarUrl);
     }
 
     @Override

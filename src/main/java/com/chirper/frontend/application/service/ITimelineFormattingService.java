@@ -1,4 +1,4 @@
-package com.chirper.frontend.domain.service;
+package com.chirper.frontend.application.service;
 
 import com.chirper.frontend.domain.model.TimelineViewModel;
 import com.chirper.frontend.application.dto.TweetDto;
@@ -8,7 +8,7 @@ import java.util.List;
 /**
  * タイムライン整形サービスインターフェース
  *
- * DTOをViewModelに変換するドメインロジックを提供する
+ * DTOをViewModelに変換するアプリケーションレイヤーのサービス
  */
 public interface ITimelineFormattingService {
 

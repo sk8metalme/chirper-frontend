@@ -2,7 +2,6 @@ package com.chirper.frontend.infrastructure.client;
 
 import com.chirper.frontend.application.dto.*;
 import com.chirper.frontend.infrastructure.exception.BackendApiException;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
@@ -251,15 +250,38 @@ public class BackendApiClient {
     }
 
     /**
+     * プロフィールを更新
+     */
+    public UserProfileDto updateProfile(String jwtToken, String displayName, String bio, String avatarUrl) {
+        try {
+            return webClient.put()
+                    .uri("/api/users/profile")
+                    .header("Authorization", "Bearer " + jwtToken)
+                    .bodyValue(Map.of(
+                            "displayName", displayName != null ? displayName : "",
+                            "bio", bio != null ? bio : "",
+                            "avatarUrl", avatarUrl != null ? avatarUrl : ""
+                    ))
+                    .retrieve()
+                    .bodyToMono(UserProfileDto.class)
+                    .block();
+        } catch (WebClientResponseException e) {
+            throw mapException(e);
+        } catch (Exception e) {
+            throw new BackendApiException("プロフィール更新中にエラーが発生しました", e);
+        }
+    }
+
+    /**
      * WebClientの例外をBackendApiExceptionにマッピング
      */
     private BackendApiException mapException(WebClientResponseException e) {
-        HttpStatus status = (HttpStatus) e.getStatusCode();
+        int statusCode = e.getStatusCode().value();
         String responseBody = e.getResponseBodyAsString();
 
         return new BackendApiException(
                 "Backend APIエラー: " + e.getMessage(),
-                status.value(),
+                statusCode,
                 responseBody
         );
     }
