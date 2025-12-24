@@ -1,5 +1,8 @@
 // Chirper - Custom JavaScript
 
+// 定数定義
+const TWEET_MAX_LENGTH = 140;
+
 document.addEventListener('DOMContentLoaded', function() {
     // 文字数カウント機能
     initCharacterCounter();
@@ -21,7 +24,7 @@ function initCharacterCounter() {
     const tweetTextarea = document.querySelector('#content, #tweetContent');
     if (!tweetTextarea) return;
 
-    const maxLength = 140;
+    const maxLength = TWEET_MAX_LENGTH;
     const counterElement = document.createElement('div');
     counterElement.className = 'char-count mt-2 text-end';
     counterElement.textContent = `0 / ${maxLength}`;
@@ -67,7 +70,7 @@ function initTweetFormValidation() {
             if (!textarea) return;
 
             const content = textarea.value.trim();
-            const maxLength = 140;
+            const maxLength = TWEET_MAX_LENGTH;
 
             if (content.length === 0) {
                 e.preventDefault();
