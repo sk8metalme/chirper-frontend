@@ -137,4 +137,74 @@ class JwtSessionManagerTest {
         // Then
         assertFalse(result);
     }
+
+    @Test
+    void shouldSaveJwtTokenWithUsername() {
+        // Given
+        when(request.getSession(true)).thenReturn(session);
+        String jwtToken = "test-token";
+        String userId = "user123";
+        String username = "testuser";
+
+        // When
+        sessionManager.saveJwtToken(request, jwtToken, userId, username);
+
+        // Then
+        verify(session).setAttribute("JWT_TOKEN", jwtToken);
+        verify(session).setAttribute("USER_ID", userId);
+        verify(session).setAttribute("USERNAME", username);
+    }
+
+    @Test
+    void shouldSaveJwtTokenWithNullUsername() {
+        // Given
+        when(request.getSession(true)).thenReturn(session);
+        String jwtToken = "test-token";
+        String userId = "user123";
+
+        // When
+        sessionManager.saveJwtToken(request, jwtToken, userId, null);
+
+        // Then
+        verify(session).setAttribute("JWT_TOKEN", jwtToken);
+        verify(session).setAttribute("USER_ID", userId);
+        verify(session, never()).setAttribute(eq("USERNAME"), any());
+    }
+
+    @Test
+    void shouldGetUsername() {
+        // Given
+        when(request.getSession(false)).thenReturn(session);
+        when(session.getAttribute("USERNAME")).thenReturn("testuser");
+
+        // When
+        String result = sessionManager.getUsername(request);
+
+        // Then
+        assertEquals("testuser", result);
+    }
+
+    @Test
+    void shouldReturnNullWhenGettingUsernameWithNoSession() {
+        // Given
+        when(request.getSession(false)).thenReturn(null);
+
+        // When
+        String result = sessionManager.getUsername(request);
+
+        // Then
+        assertNull(result);
+    }
+
+    @Test
+    void shouldReturnNullWhenGettingUserIdWithNoSession() {
+        // Given
+        when(request.getSession(false)).thenReturn(null);
+
+        // When
+        String result = sessionManager.getUserId(request);
+
+        // Then
+        assertNull(result);
+    }
 }

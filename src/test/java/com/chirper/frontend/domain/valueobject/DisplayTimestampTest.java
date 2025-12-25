@@ -102,4 +102,17 @@ class DisplayTimestampTest {
             new DisplayTimestamp(null);
         });
     }
+
+    @Test
+    void getTimestamp_元のタイムスタンプを返す() {
+        // Arrange
+        Instant timestamp = Instant.parse("2025-12-23T14:30:00Z");
+        DisplayTimestamp displayTimestamp = new DisplayTimestamp(timestamp);
+
+        // Act
+        Instant result = displayTimestamp.getTimestamp();
+
+        // Assert
+        assertEquals(timestamp, result, "元のタイムスタンプが返される");
+    }
 }

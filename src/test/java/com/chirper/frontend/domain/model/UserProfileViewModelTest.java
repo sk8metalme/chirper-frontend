@@ -99,6 +99,118 @@ class UserProfileViewModelTest {
         });
     }
 
+    @Test
+    void shouldGetUserId() {
+        // Arrange
+        UserProfileViewModel profile = createProfile("user123", false);
+
+        // Act & Assert
+        assertEquals("user123", profile.getUserId());
+    }
+
+    @Test
+    void shouldGetUsername() {
+        // Arrange
+        UserProfileViewModel profile = createProfile("user1", false);
+
+        // Act & Assert
+        assertEquals("username", profile.getUsername());
+    }
+
+    @Test
+    void shouldGetDisplayName() {
+        // Arrange
+        UserProfileViewModel profile = createProfile("user1", false);
+
+        // Act & Assert
+        assertEquals("Display Name", profile.getDisplayName());
+    }
+
+    @Test
+    void shouldGetBio() {
+        // Arrange
+        UserProfileViewModel profile = createProfile("user1", false);
+
+        // Act & Assert
+        assertEquals("Bio text", profile.getBio());
+    }
+
+    @Test
+    void shouldGetAvatarUrl() {
+        // Arrange
+        UserProfileViewModel profile = createProfile("user1", false);
+
+        // Act & Assert
+        assertEquals("https://example.com/avatar.jpg", profile.getAvatarUrl());
+    }
+
+    @Test
+    void shouldGetFollowersCount() {
+        // Arrange
+        UserProfileViewModel profile = createProfile("user1", false);
+
+        // Act & Assert
+        assertEquals(100, profile.getFollowersCount());
+    }
+
+    @Test
+    void shouldGetFollowingCount() {
+        // Arrange
+        UserProfileViewModel profile = createProfile("user1", false);
+
+        // Act & Assert
+        assertEquals(50, profile.getFollowingCount());
+    }
+
+    @Test
+    void shouldGetIsFollowedByCurrentUser() {
+        // Arrange
+        UserProfileViewModel profile = createProfileWithFollowStatus(true);
+
+        // Act & Assert
+        assertTrue(profile.isFollowedByCurrentUser());
+    }
+
+    @Test
+    void shouldGetIsCurrentUser() {
+        // Arrange
+        UserProfileViewModel profile = createProfile("user1", true);
+
+        // Act & Assert
+        assertTrue(profile.isCurrentUser());
+    }
+
+    @Test
+    void shouldGetUserTweets() {
+        // Arrange
+        UserProfileViewModel profile = createProfile("user1", false);
+
+        // Act & Assert
+        assertNotNull(profile.getUserTweets());
+        assertTrue(profile.getUserTweets().isEmpty());
+    }
+
+    @Test
+    void constructor_userTweetsがnullの場合は空リストを返す() {
+        // Act
+        UserProfileViewModel profile = new UserProfileViewModel(
+            "user1",
+            "username",
+            "Display Name",
+            "Bio text",
+            "https://example.com/avatar.jpg",
+            100,
+            50,
+            false,
+            false,
+            null  // userTweetsにnullを渡す
+        );
+
+        // Assert
+        assertNotNull(profile.getUserTweets(), "userTweetsがnullでも空リストが返される");
+        assertTrue(profile.getUserTweets().isEmpty(), "空リストが返される");
+    }
+
     /**
      * 基本的なUserProfileViewModelを生成するヘルパーメソッド
      */

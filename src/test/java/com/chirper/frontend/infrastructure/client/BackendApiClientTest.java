@@ -215,4 +215,335 @@ class BackendApiClientTest {
         assertThrows(BackendApiException.class,
                 () -> client.login("user", "pass"));
     }
+
+    @Test
+    void shouldLikeTweetSuccessfully() throws InterruptedException {
+        // Given
+        String jwtToken = "valid-token";
+        String tweetId = "tweet123";
+
+        mockWebServer.enqueue(new MockResponse()
+                .setResponseCode(200));
+
+        // When
+        client.likeTweet(jwtToken, tweetId);
+
+        // Then
+        RecordedRequest request = mockWebServer.takeRequest();
+        assertEquals("/api/tweets/tweet123/like", request.getPath());
+        assertEquals("POST", request.getMethod());
+        assertEquals("Bearer valid-token", request.getHeader("Authorization"));
+    }
+
+    @Test
+    void shouldUnlikeTweetSuccessfully() throws InterruptedException {
+        // Given
+        String jwtToken = "valid-token";
+        String tweetId = "tweet123";
+
+        mockWebServer.enqueue(new MockResponse()
+                .setResponseCode(200));
+
+        // When
+        client.unlikeTweet(jwtToken, tweetId);
+
+        // Then
+        RecordedRequest request = mockWebServer.takeRequest();
+        assertEquals("/api/tweets/tweet123/like", request.getPath());
+        assertEquals("DELETE", request.getMethod());
+        assertEquals("Bearer valid-token", request.getHeader("Authorization"));
+    }
+
+    @Test
+    void shouldRetweetTweetSuccessfully() throws InterruptedException {
+        // Given
+        String jwtToken = "valid-token";
+        String tweetId = "tweet123";
+
+        mockWebServer.enqueue(new MockResponse()
+                .setResponseCode(200));
+
+        // When
+        client.retweetTweet(jwtToken, tweetId);
+
+        // Then
+        RecordedRequest request = mockWebServer.takeRequest();
+        assertEquals("/api/tweets/tweet123/retweet", request.getPath());
+        assertEquals("POST", request.getMethod());
+        assertEquals("Bearer valid-token", request.getHeader("Authorization"));
+    }
+
+    @Test
+    void shouldUnretweetTweetSuccessfully() throws InterruptedException {
+        // Given
+        String jwtToken = "valid-token";
+        String tweetId = "tweet123";
+
+        mockWebServer.enqueue(new MockResponse()
+                .setResponseCode(200));
+
+        // When
+        client.unretweetTweet(jwtToken, tweetId);
+
+        // Then
+        RecordedRequest request = mockWebServer.takeRequest();
+        assertEquals("/api/tweets/tweet123/retweet", request.getPath());
+        assertEquals("DELETE", request.getMethod());
+        assertEquals("Bearer valid-token", request.getHeader("Authorization"));
+    }
+
+    @Test
+    void shouldDeleteTweetSuccessfully() throws InterruptedException {
+        // Given
+        String jwtToken = "valid-token";
+        String tweetId = "tweet123";
+
+        mockWebServer.enqueue(new MockResponse()
+                .setResponseCode(200));
+
+        // When
+        client.deleteTweet(jwtToken, tweetId);
+
+        // Then
+        RecordedRequest request = mockWebServer.takeRequest();
+        assertEquals("/api/tweets/tweet123", request.getPath());
+        assertEquals("DELETE", request.getMethod());
+        assertEquals("Bearer valid-token", request.getHeader("Authorization"));
+    }
+
+    @Test
+    void shouldUpdateProfileSuccessfully() throws InterruptedException {
+        // Given
+        String jwtToken = "valid-token";
+        String displayName = "Updated Name";
+        String bio = "Updated bio";
+        String avatarUrl = "https://example.com/avatar.jpg";
+        String responseJson = "{\"userId\":\"user123\",\"username\":\"testuser\",\"displayName\":\"Updated Name\"}";
+
+        mockWebServer.enqueue(new MockResponse()
+                .setResponseCode(200)
+                .setBody(responseJson)
+                .addHeader("Content-Type", "application/json"));
+
+        // When
+        UserProfileDto response = client.updateProfile(jwtToken, displayName, bio, avatarUrl);
+
+        // Then
+        assertNotNull(response);
+        RecordedRequest request = mockWebServer.takeRequest();
+        assertEquals("/api/users/profile", request.getPath());
+        assertEquals("PUT", request.getMethod());
+        assertEquals("Bearer valid-token", request.getHeader("Authorization"));
+        String requestBody = request.getBody().readUtf8();
+        assertTrue(requestBody.contains("\"displayName\":\"Updated Name\""));
+        assertTrue(requestBody.contains("\"bio\":\"Updated bio\""));
+    }
+
+    @Test
+    void shouldHandleNullValuesInUpdateProfile() throws InterruptedException {
+        // Given
+        String jwtToken = "valid-token";
+        String responseJson = "{\"userId\":\"user123\",\"username\":\"testuser\"}";
+
+        mockWebServer.enqueue(new MockResponse()
+                .setResponseCode(200)
+                .setBody(responseJson)
+                .addHeader("Content-Type", "application/json"));
+
+        // When
+        UserProfileDto response = client.updateProfile(jwtToken, null, null, null);
+
+        // Then
+        assertNotNull(response);
+        RecordedRequest request = mockWebServer.takeRequest();
+        String requestBody = request.getBody().readUtf8();
+        assertTrue(requestBody.contains("\"displayName\":\"\""));
+        assertTrue(requestBody.contains("\"bio\":\"\""));
+        assertTrue(requestBody.contains("\"avatarUrl\":\"\""));
+    }
+
+    @Test
+    void shouldThrowBackendApiExceptionOnInvalidJsonInRegister() {
+        // Given
+        String username = "testuser";
+        String email = "test@example.com";
+        String password = "password123";
+        String invalidJson = "invalid-json-response";
+
+        mockWebServer.enqueue(new MockResponse()
+                .setResponseCode(200)
+                .setBody(invalidJson)
+                .addHeader("Content-Type", "application/json"));
+
+        // When & Then
+        BackendApiException exception = assertThrows(BackendApiException.class,
+                () -> client.register(username, email, password));
+        assertEquals("新規登録中にエラーが発生しました", exception.getMessage());
+    }
+
+    @Test
+    void shouldThrowBackendApiExceptionOnInvalidJsonInGetTimeline() {
+        // Given
+        String jwtToken = "valid-token";
+        int page = 0;
+        int size = 20;
+        String invalidJson = "invalid-json-response";
+
+        mockWebServer.enqueue(new MockResponse()
+                .setResponseCode(200)
+                .setBody(invalidJson)
+                .addHeader("Content-Type", "application/json"));
+
+        // When & Then
+        BackendApiException exception = assertThrows(BackendApiException.class,
+                () -> client.getTimeline(jwtToken, page, size));
+        assertEquals("タイムライン取得中にエラーが発生しました", exception.getMessage());
+    }
+
+    @Test
+    void shouldThrowBackendApiExceptionOnInvalidJsonInCreateTweet() {
+        // Given
+        String jwtToken = "valid-token";
+        String content = "Hello, world!";
+        String invalidJson = "invalid-json-response";
+
+        mockWebServer.enqueue(new MockResponse()
+                .setResponseCode(200)
+                .setBody(invalidJson)
+                .addHeader("Content-Type", "application/json"));
+
+        // When & Then
+        BackendApiException exception = assertThrows(BackendApiException.class,
+                () -> client.createTweet(jwtToken, content));
+        assertEquals("ツイート作成中にエラーが発生しました", exception.getMessage());
+    }
+
+    @Test
+    void shouldThrowBackendApiExceptionOnInvalidJsonInGetUserProfile() {
+        // Given
+        String jwtToken = "valid-token";
+        String username = "testuser";
+        String invalidJson = "invalid-json-response";
+
+        mockWebServer.enqueue(new MockResponse()
+                .setResponseCode(200)
+                .setBody(invalidJson)
+                .addHeader("Content-Type", "application/json"));
+
+        // When & Then
+        BackendApiException exception = assertThrows(BackendApiException.class,
+                () -> client.getUserProfile(jwtToken, username));
+        assertEquals("ユーザープロフィール取得中にエラーが発生しました", exception.getMessage());
+    }
+
+    @Test
+    void shouldThrowBackendApiExceptionOnInvalidJsonInUpdateProfile() {
+        // Given
+        String jwtToken = "valid-token";
+        String displayName = "Updated Name";
+        String bio = "Updated bio";
+        String avatarUrl = "https://example.com/avatar.jpg";
+        String invalidJson = "invalid-json-response";
+
+        mockWebServer.enqueue(new MockResponse()
+                .setResponseCode(200)
+                .setBody(invalidJson)
+                .addHeader("Content-Type", "application/json"));
+
+        // When & Then
+        BackendApiException exception = assertThrows(BackendApiException.class,
+                () -> client.updateProfile(jwtToken, displayName, bio, avatarUrl));
+        assertEquals("プロフィール更新中にエラーが発生しました", exception.getMessage());
+    }
+
+    @Test
+    void shouldThrowBackendApiExceptionOnNetworkErrorInFollowUser() throws IOException {
+        // Given
+        String jwtToken = "valid-token";
+        String userId = "user456";
+        mockWebServer.shutdown();
+
+        // When & Then
+        BackendApiException exception = assertThrows(BackendApiException.class,
+                () -> client.followUser(jwtToken, userId));
+        assertEquals("フォロー中にエラーが発生しました", exception.getMessage());
+    }
+
+    @Test
+    void shouldThrowBackendApiExceptionOnNetworkErrorInUnfollowUser() throws IOException {
+        // Given
+        String jwtToken = "valid-token";
+        String userId = "user456";
+        mockWebServer.shutdown();
+
+        // When & Then
+        BackendApiException exception = assertThrows(BackendApiException.class,
+                () -> client.unfollowUser(jwtToken, userId));
+        assertEquals("アンフォロー中にエラーが発生しました", exception.getMessage());
+    }
+
+    @Test
+    void shouldThrowBackendApiExceptionOnNetworkErrorInLikeTweet() throws IOException {
+        // Given
+        String jwtToken = "valid-token";
+        String tweetId = "tweet123";
+        mockWebServer.shutdown();
+
+        // When & Then
+        BackendApiException exception = assertThrows(BackendApiException.class,
+                () -> client.likeTweet(jwtToken, tweetId));
+        assertEquals("いいね中にエラーが発生しました", exception.getMessage());
+    }
+
+    @Test
+    void shouldThrowBackendApiExceptionOnNetworkErrorInUnlikeTweet() throws IOException {
+        // Given
+        String jwtToken = "valid-token";
+        String tweetId = "tweet123";
+        mockWebServer.shutdown();
+
+        // When & Then
+        BackendApiException exception = assertThrows(BackendApiException.class,
+                () -> client.unlikeTweet(jwtToken, tweetId));
+        assertEquals("いいね解除中にエラーが発生しました", exception.getMessage());
+    }
+
+    @Test
+    void shouldThrowBackendApiExceptionOnNetworkErrorInRetweetTweet() throws IOException {
+        // Given
+        String jwtToken = "valid-token";
+        String tweetId = "tweet123";
+        mockWebServer.shutdown();
+
+        // When & Then
+        BackendApiException exception = assertThrows(BackendApiException.class,
+                () -> client.retweetTweet(jwtToken, tweetId));
+        assertEquals("リツイート中にエラーが発生しました", exception.getMessage());
+    }
+
+    @Test
+    void shouldThrowBackendApiExceptionOnNetworkErrorInUnretweetTweet() throws IOException {
+        // Given
+        String jwtToken = "valid-token";
+        String tweetId = "tweet123";
+        mockWebServer.shutdown();
+
+        // When & Then
+        BackendApiException exception = assertThrows(BackendApiException.class,
+                () -> client.unretweetTweet(jwtToken, tweetId));
+        assertEquals("リツイート解除中にエラーが発生しました", exception.getMessage());
+    }
+
+    @Test
+    void shouldThrowBackendApiExceptionOnNetworkErrorInDeleteTweet() throws IOException {
+        // Given
+        String jwtToken = "valid-token";
+        String tweetId = "tweet123";
+        mockWebServer.shutdown();
+
+        // When & Then
+        BackendApiException exception = assertThrows(BackendApiException.class,
+                () -> client.deleteTweet(jwtToken, tweetId));
+        assertEquals("ツイート削除中にエラーが発生しました", exception.getMessage());
+    }
 }
