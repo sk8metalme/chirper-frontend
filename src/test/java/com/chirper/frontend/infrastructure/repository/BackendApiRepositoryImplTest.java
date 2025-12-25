@@ -3,18 +3,22 @@ package com.chirper.frontend.infrastructure.repository;
 import com.chirper.frontend.application.dto.LoginResponse;
 import com.chirper.frontend.application.dto.RegisterResponse;
 import com.chirper.frontend.application.dto.TimelineDto;
+import com.chirper.frontend.application.dto.TweetDto;
 import com.chirper.frontend.application.dto.UserProfileDto;
 import com.chirper.frontend.infrastructure.client.BackendApiClient;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.time.Instant;
 import java.util.Collections;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
+@ExtendWith(MockitoExtension.class)
 class BackendApiRepositoryImplTest {
 
     private BackendApiRepositoryImpl repository;
@@ -24,7 +28,6 @@ class BackendApiRepositoryImplTest {
 
     @BeforeEach
     void setUp() {
-        MockitoAnnotations.openMocks(this);
         repository = new BackendApiRepositoryImpl(apiClient);
     }
 
@@ -125,5 +128,95 @@ class BackendApiRepositoryImplTest {
 
         // Then
         verify(apiClient).deleteTweet(jwtToken, tweetId);
+    }
+
+    @Test
+    void shouldDelegateCreateTweet() {
+        // Given
+        String jwtToken = "valid-token";
+        String content = "Hello, world!";
+        TweetDto expectedResponse = new TweetDto(
+                "tweet123", "user123", "testuser", content,
+                Instant.now(), 0, 0, false, false
+        );
+        when(apiClient.createTweet(jwtToken, content)).thenReturn(expectedResponse);
+
+        // When
+        TweetDto result = repository.createTweet(jwtToken, content);
+
+        // Then
+        assertEquals(expectedResponse, result);
+        verify(apiClient).createTweet(jwtToken, content);
+    }
+
+    @Test
+    void shouldDelegateUpdateProfile() {
+        // Given
+        String jwtToken = "valid-token";
+        String displayName = "Updated Name";
+        String bio = "Updated bio";
+        String avatarUrl = "https://example.com/avatar.jpg";
+        UserProfileDto expectedResponse = new UserProfileDto(
+                "user123", "testuser", "test@example.com",
+                bio, 10, 5, false
+        );
+        when(apiClient.updateProfile(jwtToken, displayName, bio, avatarUrl))
+                .thenReturn(expectedResponse);
+
+        // When
+        UserProfileDto result = repository.updateProfile(jwtToken, displayName, bio, avatarUrl);
+
+        // Then
+        assertEquals(expectedResponse, result);
+        verify(apiClient).updateProfile(jwtToken, displayName, bio, avatarUrl);
+    }
+
+    @Test
+    void shouldDelegateUnfollowUser() {
+        // Given
+        String jwtToken = "valid-token";
+        String userId = "user456";
+
+        // When
+        repository.unfollowUser(jwtToken, userId);
+
+        // Then
+        verify(apiClient).unfollowUser(jwtToken, userId);
+    }
+
+    @Test
+    void shouldDelegateUnlikeTweet() {
+        // Given
+        String jwtToken = "valid-token";
+        String tweetId = "tweet123";
+
+        // When
+        repository.unlikeTweet(jwtToken, tweetId);
+
+        // Then
+        verify(apiClient).unlikeTweet(jwtToken, tweetId);
+    }
+
+    @Test
+    void shouldDelegateRetweet() {
+        // Given
+        String jwtToken = "valid-token";
+        String tweetId = "tweet123";
+
+        // When
+        repository.retweet(jwtToken, tweetId);
+
+        // Then
+        verify(apiClient).retweetTweet(jwtToken, tweetId);
+    }
+
+    @Test
+    void shouldThrowUnsupportedOperationExceptionForGetTweet() {
+        // Given
+        String tweetId = "tweet123";
+
+        // When & Then
+        assertThrows(UnsupportedOperationException.class,
+                () -> repository.getTweet(tweetId));
     }
 }
