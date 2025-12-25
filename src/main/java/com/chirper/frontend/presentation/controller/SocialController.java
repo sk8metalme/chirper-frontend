@@ -101,13 +101,25 @@ public class SocialController {
             HttpServletRequest request,
             Model model
     ) {
-        String jwtToken = sessionManager.getJwtToken(request);
-        FollowListDto followersDto = apiRepository.getFollowers(jwtToken, username, page, size);
+        try {
+            String jwtToken = sessionManager.getJwtToken(request);
+            if (jwtToken == null) {
+                throw new IllegalStateException("認証が必要です");
+            }
 
-        model.addAttribute("username", username);
-        model.addAttribute("followers", followersDto.users());
-        model.addAttribute("currentPage", followersDto.currentPage());
-        model.addAttribute("totalPages", followersDto.totalPages());
+            FollowListDto followersDto = apiRepository.getFollowers(jwtToken, username, page, size);
+
+            model.addAttribute("username", username);
+            model.addAttribute("followers", followersDto.users());
+            model.addAttribute("currentPage", followersDto.currentPage());
+            model.addAttribute("totalPages", followersDto.totalPages());
+        } catch (Exception e) {
+            model.addAttribute("error", e.getMessage());
+            model.addAttribute("username", username);
+            model.addAttribute("followers", java.util.Collections.emptyList());
+            model.addAttribute("currentPage", 0);
+            model.addAttribute("totalPages", 0);
+        }
         return "followers";
     }
 
@@ -122,13 +134,25 @@ public class SocialController {
             HttpServletRequest request,
             Model model
     ) {
-        String jwtToken = sessionManager.getJwtToken(request);
-        FollowListDto followingDto = apiRepository.getFollowing(jwtToken, username, page, size);
+        try {
+            String jwtToken = sessionManager.getJwtToken(request);
+            if (jwtToken == null) {
+                throw new IllegalStateException("認証が必要です");
+            }
 
-        model.addAttribute("username", username);
-        model.addAttribute("following", followingDto.users());
-        model.addAttribute("currentPage", followingDto.currentPage());
-        model.addAttribute("totalPages", followingDto.totalPages());
+            FollowListDto followingDto = apiRepository.getFollowing(jwtToken, username, page, size);
+
+            model.addAttribute("username", username);
+            model.addAttribute("following", followingDto.users());
+            model.addAttribute("currentPage", followingDto.currentPage());
+            model.addAttribute("totalPages", followingDto.totalPages());
+        } catch (Exception e) {
+            model.addAttribute("error", e.getMessage());
+            model.addAttribute("username", username);
+            model.addAttribute("following", java.util.Collections.emptyList());
+            model.addAttribute("currentPage", 0);
+            model.addAttribute("totalPages", 0);
+        }
         return "following";
     }
 

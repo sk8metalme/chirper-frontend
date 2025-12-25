@@ -155,4 +155,76 @@ class SocialControllerTest {
         verify(sessionManager).getJwtToken(any());
         verify(apiRepository).getFollowing(eq(jwtToken), eq("testuser"), eq(0), eq(20));
     }
+
+    @Test
+    void shouldHandleNullTokenInFollowers() throws Exception {
+        // Arrange
+        when(sessionManager.getJwtToken(any())).thenReturn(null);
+
+        // Act & Assert
+        mockMvc.perform(get("/followers/testuser")
+                        .with(user("viewer")))
+                .andExpect(status().isOk())
+                .andExpect(view().name("followers"))
+                .andExpect(model().attributeExists("error"))
+                .andExpect(model().attribute("username", "testuser"))
+                .andExpect(model().attribute("followers", Collections.emptyList()));
+
+        verify(sessionManager).getJwtToken(any());
+        verify(apiRepository, never()).getFollowers(any(), any(), anyInt(), anyInt());
+    }
+
+    @Test
+    void shouldHandleNullTokenInFollowing() throws Exception {
+        // Arrange
+        when(sessionManager.getJwtToken(any())).thenReturn(null);
+
+        // Act & Assert
+        mockMvc.perform(get("/following/testuser")
+                        .with(user("viewer")))
+                .andExpect(status().isOk())
+                .andExpect(view().name("following"))
+                .andExpect(model().attributeExists("error"))
+                .andExpect(model().attribute("username", "testuser"))
+                .andExpect(model().attribute("following", Collections.emptyList()));
+
+        verify(sessionManager).getJwtToken(any());
+        verify(apiRepository, never()).getFollowing(any(), any(), anyInt(), anyInt());
+    }
+
+    @Test
+    void shouldHandleErrorInFollowers() throws Exception {
+        // Arrange
+        String jwtToken = "valid-token";
+        when(sessionManager.getJwtToken(any())).thenReturn(jwtToken);
+        when(apiRepository.getFollowers(eq(jwtToken), eq("testuser"), eq(0), eq(20)))
+                .thenThrow(new RuntimeException("API エラー"));
+
+        // Act & Assert
+        mockMvc.perform(get("/followers/testuser")
+                        .with(user("viewer")))
+                .andExpect(status().isOk())
+                .andExpect(view().name("followers"))
+                .andExpect(model().attributeExists("error"))
+                .andExpect(model().attribute("username", "testuser"))
+                .andExpect(model().attribute("followers", Collections.emptyList()));
+    }
+
+    @Test
+    void shouldHandleErrorInFollowing() throws Exception {
+        // Arrange
+        String jwtToken = "valid-token";
+        when(sessionManager.getJwtToken(any())).thenReturn(jwtToken);
+        when(apiRepository.getFollowing(eq(jwtToken), eq("testuser"), eq(0), eq(20)))
+                .thenThrow(new RuntimeException("API エラー"));
+
+        // Act & Assert
+        mockMvc.perform(get("/following/testuser")
+                        .with(user("viewer")))
+                .andExpect(status().isOk())
+                .andExpect(view().name("following"))
+                .andExpect(model().attributeExists("error"))
+                .andExpect(model().attribute("username", "testuser"))
+                .andExpect(model().attribute("following", Collections.emptyList()));
+    }
 }
