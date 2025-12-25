@@ -1,5 +1,6 @@
 package com.chirper.frontend.infrastructure.repository;
 
+import com.chirper.frontend.application.dto.FollowListDto;
 import com.chirper.frontend.application.dto.LoginResponse;
 import com.chirper.frontend.application.dto.RegisterResponse;
 import com.chirper.frontend.application.dto.TimelineDto;
@@ -218,5 +219,41 @@ class BackendApiRepositoryImplTest {
         // When & Then
         assertThrows(UnsupportedOperationException.class,
                 () -> repository.getTweet(tweetId));
+    }
+
+    @Test
+    void shouldDelegateGetFollowers() {
+        // Given
+        String jwtToken = "valid-token";
+        String username = "testuser";
+        int page = 0;
+        int size = 100;
+        FollowListDto expectedResponse = new FollowListDto(Collections.emptyList(), 0, 1, 0);
+        when(apiClient.getFollowers(jwtToken, username, page, size)).thenReturn(expectedResponse);
+
+        // When
+        FollowListDto result = repository.getFollowers(jwtToken, username, page, size);
+
+        // Then
+        assertEquals(expectedResponse, result);
+        verify(apiClient).getFollowers(jwtToken, username, page, size);
+    }
+
+    @Test
+    void shouldDelegateGetFollowing() {
+        // Given
+        String jwtToken = "valid-token";
+        String username = "testuser";
+        int page = 0;
+        int size = 100;
+        FollowListDto expectedResponse = new FollowListDto(Collections.emptyList(), 0, 1, 0);
+        when(apiClient.getFollowing(jwtToken, username, page, size)).thenReturn(expectedResponse);
+
+        // When
+        FollowListDto result = repository.getFollowing(jwtToken, username, page, size);
+
+        // Then
+        assertEquals(expectedResponse, result);
+        verify(apiClient).getFollowing(jwtToken, username, page, size);
     }
 }

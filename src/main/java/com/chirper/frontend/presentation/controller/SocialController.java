@@ -1,13 +1,19 @@
 package com.chirper.frontend.presentation.controller;
 
+import com.chirper.frontend.application.dto.FollowListDto;
 import com.chirper.frontend.application.usecase.FollowUserUseCase;
 import com.chirper.frontend.application.usecase.UnfollowUserUseCase;
+import com.chirper.frontend.domain.repository.IBackendApiRepository;
+import com.chirper.frontend.infrastructure.session.JwtSessionManager;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.constraints.Pattern;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.net.URI;
@@ -18,17 +24,24 @@ import java.util.List;
  * ソーシャル機能コントローラー
  */
 @Controller
+@Validated
 public class SocialController {
 
     private final FollowUserUseCase followUserUseCase;
     private final UnfollowUserUseCase unfollowUserUseCase;
+    private final IBackendApiRepository apiRepository;
+    private final JwtSessionManager sessionManager;
 
     public SocialController(
             FollowUserUseCase followUserUseCase,
-            UnfollowUserUseCase unfollowUserUseCase
+            UnfollowUserUseCase unfollowUserUseCase,
+            IBackendApiRepository apiRepository,
+            JwtSessionManager sessionManager
     ) {
         this.followUserUseCase = followUserUseCase;
         this.unfollowUserUseCase = unfollowUserUseCase;
+        this.apiRepository = apiRepository;
+        this.sessionManager = sessionManager;
     }
 
     /**
@@ -81,10 +94,32 @@ public class SocialController {
      * フォロワー一覧表示
      */
     @GetMapping("/followers/{username}")
-    public String followers(@PathVariable String username, Model model) {
-        // TODO: Phase 2.5 - BackendApiClientにgetFollowersメソッドを追加後に実装
-        model.addAttribute("username", username);
-        model.addAttribute("followers", java.util.Collections.emptyList());
+    public String followers(
+            @PathVariable @Pattern(regexp = "^[a-zA-Z0-9_]+$", message = "ユーザー名は英数字とアンダースコアのみ使用できます") String username,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size,
+            HttpServletRequest request,
+            Model model
+    ) {
+        try {
+            String jwtToken = sessionManager.getJwtToken(request);
+            if (jwtToken == null) {
+                throw new IllegalStateException("認証が必要です");
+            }
+
+            FollowListDto followersDto = apiRepository.getFollowers(jwtToken, username, page, size);
+
+            model.addAttribute("username", username);
+            model.addAttribute("followers", followersDto.users());
+            model.addAttribute("currentPage", followersDto.currentPage());
+            model.addAttribute("totalPages", followersDto.totalPages());
+        } catch (Exception e) {
+            model.addAttribute("error", e.getMessage());
+            model.addAttribute("username", username);
+            model.addAttribute("followers", java.util.Collections.emptyList());
+            model.addAttribute("currentPage", 0);
+            model.addAttribute("totalPages", 0);
+        }
         return "followers";
     }
 
@@ -92,10 +127,32 @@ public class SocialController {
      * フォロー中一覧表示
      */
     @GetMapping("/following/{username}")
-    public String following(@PathVariable String username, Model model) {
-        // TODO: Phase 2.5 - BackendApiClientにgetFollowingメソッドを追加後に実装
-        model.addAttribute("username", username);
-        model.addAttribute("following", java.util.Collections.emptyList());
+    public String following(
+            @PathVariable @Pattern(regexp = "^[a-zA-Z0-9_]+$", message = "ユーザー名は英数字とアンダースコアのみ使用できます") String username,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size,
+            HttpServletRequest request,
+            Model model
+    ) {
+        try {
+            String jwtToken = sessionManager.getJwtToken(request);
+            if (jwtToken == null) {
+                throw new IllegalStateException("認証が必要です");
+            }
+
+            FollowListDto followingDto = apiRepository.getFollowing(jwtToken, username, page, size);
+
+            model.addAttribute("username", username);
+            model.addAttribute("following", followingDto.users());
+            model.addAttribute("currentPage", followingDto.currentPage());
+            model.addAttribute("totalPages", followingDto.totalPages());
+        } catch (Exception e) {
+            model.addAttribute("error", e.getMessage());
+            model.addAttribute("username", username);
+            model.addAttribute("following", java.util.Collections.emptyList());
+            model.addAttribute("currentPage", 0);
+            model.addAttribute("totalPages", 0);
+        }
         return "following";
     }
 
