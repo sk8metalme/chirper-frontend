@@ -22,22 +22,19 @@ public class SecurityConfig {
             )
             .authorizeHttpRequests(auth -> auth
                 // 公開ページ
-                .requestMatchers("/", "/login", "/register", "/error/**").permitAll()
+                // 注: /logoutはAuthControllerが処理するためpermitAllに含まれる
+                .requestMatchers("/", "/login", "/register", "/logout", "/error/**").permitAll()
                 // 静的リソース
                 .requestMatchers("/css/**", "/js/**", "/images/**").permitAll()
                 // その他は認証が必要
                 .anyRequest().authenticated()
             )
-            // Phase 2: フォームログインを有効化
-            .formLogin(form -> form
-                .loginPage("/login")
-                .permitAll()
-                .defaultSuccessUrl("/timeline", true)
-                .failureUrl("/login?error=true")
-            )
             // ログアウト設定
+            // 注: AuthControllerが独自にJWT認証とログアウト処理を実装しているため、
+            // Spring Securityの組み込みログアウト機能（/logout-deprecated）は使用しない
+            // AuthControllerの/logoutとの競合を避けるため、URLを変更している
             .logout(logout -> logout
-                .logoutUrl("/logout")
+                .logoutUrl("/logout-deprecated")
                 .logoutSuccessUrl("/")
                 .permitAll()
             )
