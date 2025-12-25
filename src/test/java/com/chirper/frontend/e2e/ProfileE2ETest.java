@@ -1,11 +1,7 @@
 package com.chirper.frontend.e2e;
 
-import com.codeborne.selenide.Configuration;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.web.server.LocalServerPort;
 
 import static com.codeborne.selenide.Condition.*;
 import static com.codeborne.selenide.Selenide.$;
@@ -17,19 +13,8 @@ import static com.codeborne.selenide.Selenide.open;
  * 注: このテストはバックエンドAPIが稼働している必要があります。
  * 現時点ではバックエンドAPIがモックされていないため、テストは@Disabledでスキップされています。
  */
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Disabled("バックエンドAPIの統合後に有効化")
-class ProfileE2ETest {
-
-    @LocalServerPort
-    private int port;
-
-    @BeforeAll
-    static void setUpAll() {
-        Configuration.browser = "chrome";
-        Configuration.headless = true;
-        Configuration.timeout = 10000;
-    }
+class ProfileE2ETest extends BaseE2ETest {
 
     @Test
     void shouldDisplayUserProfile() {
@@ -121,15 +106,5 @@ class ProfileE2ETest {
         // Then - フォロー中リストが表示される
         $("h1").shouldHave(text("testuser がフォロー中"));
         $(".user-list").shouldBe(visible);
-    }
-
-    /**
-     * ログインするヘルパーメソッド
-     */
-    private void login() {
-        open("http://localhost:" + port + "/login");
-        $("#username").setValue("testuser");
-        $("#password").setValue("password123");
-        $("button[type=submit]").click();
     }
 }

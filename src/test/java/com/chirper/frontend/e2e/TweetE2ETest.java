@@ -1,16 +1,10 @@
 package com.chirper.frontend.e2e;
 
-import com.codeborne.selenide.Configuration;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.web.server.LocalServerPort;
 
 import static com.codeborne.selenide.Condition.text;
-import static com.codeborne.selenide.Condition.visible;
 import static com.codeborne.selenide.Selenide.$;
-import static com.codeborne.selenide.Selenide.open;
 
 /**
  * ツイート投稿フローのE2Eテスト
@@ -18,19 +12,8 @@ import static com.codeborne.selenide.Selenide.open;
  * 注: このテストはバックエンドAPIが稼働している必要があります。
  * 現時点ではバックエンドAPIがモックされていないため、テストは@Disabledでスキップされています。
  */
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Disabled("バックエンドAPIの統合後に有効化")
-class TweetE2ETest {
-
-    @LocalServerPort
-    private int port;
-
-    @BeforeAll
-    static void setUpAll() {
-        Configuration.browser = "chrome";
-        Configuration.headless = true;
-        Configuration.timeout = 10000;
-    }
+class TweetE2ETest extends BaseE2ETest {
 
     @Test
     void shouldSubmitTweetSuccessfully() {
@@ -93,16 +76,5 @@ class TweetE2ETest {
 
         // And - ツイートがタイムラインから消える
         $(".tweet-content").shouldNotHave(text("削除テストツイート"));
-    }
-
-    /**
-     * ログインしてタイムラインページを開くヘルパーメソッド
-     */
-    private void loginAndOpenTimeline() {
-        open("http://localhost:" + port + "/login");
-        $("#username").setValue("testuser");
-        $("#password").setValue("password123");
-        $("button[type=submit]").click();
-        $("h1").shouldHave(text("タイムライン"));
     }
 }
