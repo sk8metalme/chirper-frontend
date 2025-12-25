@@ -85,7 +85,7 @@ class ProfileControllerTest {
     }
 
     @Test
-    void shouldDisplayUserProfileWithIsOwnerFalseWhenNotLoggedIn() throws Exception {
+    void shouldReturnForbiddenWhenNotAuthenticated() throws Exception {
         // Act & Assert - 未ログイン状態ではプロフィールページへのアクセスは認証エラー
         mockMvc.perform(get("/profile/testuser"))
                 .andExpect(status().isForbidden());
