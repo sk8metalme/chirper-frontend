@@ -644,4 +644,116 @@ class BackendApiClientTest {
                 () -> client.getFollowing(jwtToken, username, 0, 100));
         assertEquals("フォロー中一覧取得中にエラーが発生しました", exception.getMessage());
     }
+
+    @Test
+    void shouldGetFollowersWithUserData() throws InterruptedException {
+        // Given
+        String jwtToken = "valid-token";
+        String username = "testuser";
+        String responseJson = """
+                {
+                    "users": [
+                        {"userId": "1", "username": "follower1", "bio": "Hello", "following": true},
+                        {"userId": "2", "username": "follower2", "bio": "World", "following": false}
+                    ],
+                    "currentPage": 0,
+                    "totalPages": 1,
+                    "totalItems": 2
+                }
+                """;
+
+        mockWebServer.enqueue(new MockResponse()
+                .setBody(responseJson)
+                .addHeader("Content-Type", "application/json"));
+
+        // When
+        FollowListDto result = client.getFollowers(jwtToken, username, 0, 100);
+
+        // Then
+        assertNotNull(result);
+        assertEquals(2, result.users().size());
+        assertEquals("follower1", result.users().get(0).username());
+        assertEquals("Hello", result.users().get(0).bio());
+        assertTrue(result.users().get(0).following());
+        assertEquals("follower2", result.users().get(1).username());
+        assertFalse(result.users().get(1).following());
+        assertEquals(0, result.currentPage());
+        assertEquals(1, result.totalPages());
+        assertEquals(2, result.totalItems());
+    }
+
+    @Test
+    void shouldGetFollowingWithUserData() throws InterruptedException {
+        // Given
+        String jwtToken = "valid-token";
+        String username = "testuser";
+        String responseJson = """
+                {
+                    "users": [
+                        {"userId": "3", "username": "following1", "bio": "Test", "following": true}
+                    ],
+                    "currentPage": 0,
+                    "totalPages": 1,
+                    "totalItems": 1
+                }
+                """;
+
+        mockWebServer.enqueue(new MockResponse()
+                .setBody(responseJson)
+                .addHeader("Content-Type", "application/json"));
+
+        // When
+        FollowListDto result = client.getFollowing(jwtToken, username, 0, 100);
+
+        // Then
+        assertNotNull(result);
+        assertEquals(1, result.users().size());
+        assertEquals("following1", result.users().get(0).username());
+        assertEquals("Test", result.users().get(0).bio());
+        assertTrue(result.users().get(0).following());
+    }
+
+    @Test
+    void shouldLimitSizeToMaximumInGetFollowers() throws InterruptedException {
+        // Given
+        String jwtToken = "valid-token";
+        String username = "testuser";
+        int requestedSize = 500; // 上限を超えるサイズ
+        String responseJson = "{\"users\":[],\"currentPage\":0,\"totalPages\":1,\"totalItems\":0}";
+
+        mockWebServer.enqueue(new MockResponse()
+                .setBody(responseJson)
+                .addHeader("Content-Type", "application/json"));
+
+        // When
+        client.getFollowers(jwtToken, username, 0, requestedSize);
+
+        // Then
+        RecordedRequest request = mockWebServer.takeRequest();
+        // size=100 に制限されていることを確認
+        assertTrue(request.getPath().contains("size=100"));
+        assertFalse(request.getPath().contains("size=500"));
+    }
+
+    @Test
+    void shouldLimitSizeToMaximumInGetFollowing() throws InterruptedException {
+        // Given
+        String jwtToken = "valid-token";
+        String username = "testuser";
+        int requestedSize = 1000; // 上限を超えるサイズ
+        String responseJson = "{\"users\":[],\"currentPage\":0,\"totalPages\":1,\"totalItems\":0}";
+
+        mockWebServer.enqueue(new MockResponse()
+                .setBody(responseJson)
+                .addHeader("Content-Type", "application/json"));
+
+        // When
+        client.getFollowing(jwtToken, username, 0, requestedSize);
+
+        // Then
+        RecordedRequest request = mockWebServer.takeRequest();
+        // size=100 に制限されていることを確認
+        assertTrue(request.getPath().contains("size=100"));
+        assertFalse(request.getPath().contains("size=1000"));
+    }
 }

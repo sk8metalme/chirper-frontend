@@ -6,11 +6,14 @@ import com.chirper.frontend.application.usecase.UnfollowUserUseCase;
 import com.chirper.frontend.domain.repository.IBackendApiRepository;
 import com.chirper.frontend.infrastructure.session.JwtSessionManager;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.constraints.Pattern;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.net.URI;
@@ -21,6 +24,7 @@ import java.util.List;
  * ソーシャル機能コントローラー
  */
 @Controller
+@Validated
 public class SocialController {
 
     private final FollowUserUseCase followUserUseCase;
@@ -91,15 +95,19 @@ public class SocialController {
      */
     @GetMapping("/followers/{username}")
     public String followers(
-            @PathVariable String username,
+            @PathVariable @Pattern(regexp = "^[a-zA-Z0-9_]+$", message = "ユーザー名は英数字とアンダースコアのみ使用できます") String username,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size,
             HttpServletRequest request,
             Model model
     ) {
         String jwtToken = sessionManager.getJwtToken(request);
-        FollowListDto followersDto = apiRepository.getFollowers(jwtToken, username, 0, 100);
+        FollowListDto followersDto = apiRepository.getFollowers(jwtToken, username, page, size);
 
         model.addAttribute("username", username);
         model.addAttribute("followers", followersDto.users());
+        model.addAttribute("currentPage", followersDto.currentPage());
+        model.addAttribute("totalPages", followersDto.totalPages());
         return "followers";
     }
 
@@ -108,15 +116,19 @@ public class SocialController {
      */
     @GetMapping("/following/{username}")
     public String following(
-            @PathVariable String username,
+            @PathVariable @Pattern(regexp = "^[a-zA-Z0-9_]+$", message = "ユーザー名は英数字とアンダースコアのみ使用できます") String username,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size,
             HttpServletRequest request,
             Model model
     ) {
         String jwtToken = sessionManager.getJwtToken(request);
-        FollowListDto followingDto = apiRepository.getFollowing(jwtToken, username, 0, 100);
+        FollowListDto followingDto = apiRepository.getFollowing(jwtToken, username, page, size);
 
         model.addAttribute("username", username);
         model.addAttribute("following", followingDto.users());
+        model.addAttribute("currentPage", followingDto.currentPage());
+        model.addAttribute("totalPages", followingDto.totalPages());
         return "following";
     }
 

@@ -8,6 +8,6 @@ public record UserSummaryDto(
         String userId,
         String username,
         String bio,
-        boolean isFollowing
+        boolean following
 ) {
 }

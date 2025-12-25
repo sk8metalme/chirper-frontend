@@ -277,11 +277,13 @@ public class BackendApiClient {
      */
     public FollowListDto getFollowers(String jwtToken, String username, int page, int size) {
         try {
+            // DoS対策: size上限を100に制限
+            int safeSize = Math.min(size, 100);
             return webClient.get()
                     .uri(uriBuilder -> uriBuilder
                             .path("/api/users/{username}/followers")
                             .queryParam("page", page)
-                            .queryParam("size", size)
+                            .queryParam("size", safeSize)
                             .build(username))
                     .header("Authorization", "Bearer " + jwtToken)
                     .retrieve()
@@ -299,11 +301,13 @@ public class BackendApiClient {
      */
     public FollowListDto getFollowing(String jwtToken, String username, int page, int size) {
         try {
+            // DoS対策: size上限を100に制限
+            int safeSize = Math.min(size, 100);
             return webClient.get()
                     .uri(uriBuilder -> uriBuilder
                             .path("/api/users/{username}/following")
                             .queryParam("page", page)
-                            .queryParam("size", size)
+                            .queryParam("size", safeSize)
                             .build(username))
                     .header("Authorization", "Bearer " + jwtToken)
                     .retrieve()

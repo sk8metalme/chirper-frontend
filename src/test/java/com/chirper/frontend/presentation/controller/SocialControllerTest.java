@@ -116,7 +116,7 @@ class SocialControllerTest {
         String jwtToken = "valid-token";
         FollowListDto followersDto = new FollowListDto(Collections.emptyList(), 0, 1, 0);
         when(sessionManager.getJwtToken(any())).thenReturn(jwtToken);
-        when(apiRepository.getFollowers(eq(jwtToken), eq("testuser"), eq(0), eq(100)))
+        when(apiRepository.getFollowers(eq(jwtToken), eq("testuser"), eq(0), eq(20)))
                 .thenReturn(followersDto);
 
         // Act & Assert
@@ -125,10 +125,12 @@ class SocialControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(view().name("followers"))
                 .andExpect(model().attribute("username", "testuser"))
-                .andExpect(model().attributeExists("followers"));
+                .andExpect(model().attributeExists("followers"))
+                .andExpect(model().attribute("currentPage", 0))
+                .andExpect(model().attribute("totalPages", 1));
 
         verify(sessionManager).getJwtToken(any());
-        verify(apiRepository).getFollowers(eq(jwtToken), eq("testuser"), eq(0), eq(100));
+        verify(apiRepository).getFollowers(eq(jwtToken), eq("testuser"), eq(0), eq(20));
     }
 
     @Test
@@ -137,7 +139,7 @@ class SocialControllerTest {
         String jwtToken = "valid-token";
         FollowListDto followingDto = new FollowListDto(Collections.emptyList(), 0, 1, 0);
         when(sessionManager.getJwtToken(any())).thenReturn(jwtToken);
-        when(apiRepository.getFollowing(eq(jwtToken), eq("testuser"), eq(0), eq(100)))
+        when(apiRepository.getFollowing(eq(jwtToken), eq("testuser"), eq(0), eq(20)))
                 .thenReturn(followingDto);
 
         // Act & Assert
@@ -146,9 +148,11 @@ class SocialControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(view().name("following"))
                 .andExpect(model().attribute("username", "testuser"))
-                .andExpect(model().attributeExists("following"));
+                .andExpect(model().attributeExists("following"))
+                .andExpect(model().attribute("currentPage", 0))
+                .andExpect(model().attribute("totalPages", 1));
 
         verify(sessionManager).getJwtToken(any());
-        verify(apiRepository).getFollowing(eq(jwtToken), eq("testuser"), eq(0), eq(100));
+        verify(apiRepository).getFollowing(eq(jwtToken), eq("testuser"), eq(0), eq(20));
     }
 }
