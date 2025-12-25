@@ -39,7 +39,7 @@
                                         <p class="text-muted mb-2" th:text="'@' + ${profile.username}">@username</p>
                                     </div>
                                     <!-- 編集ボタン（自分のプロフィールの場合のみ表示） -->
-                                    <div>
+                                    <div th:if="${isOwner}">
                                         <a th:href="@{/profile/edit}" class="btn btn-outline-primary">
                                             プロフィールを編集
                                         </a>
@@ -54,8 +54,8 @@
                                     自己紹介がまだ設定されていません。
                                 </p>
 
-                                <!-- メールアドレス -->
-                                <div class="mb-3">
+                                <!-- メールアドレス（プロフィール所有者のみ表示） -->
+                                <div class="mb-3" th:if="${isOwner}">
                                     <i class="bi bi-envelope"></i>
                                     <span class="text-muted" th:text="${profile.email}">email@example.com</span>
                                 </div>

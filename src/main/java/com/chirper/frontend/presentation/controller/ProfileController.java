@@ -40,11 +40,21 @@ public class ProfileController {
      * プロフィール表示
      */
     @GetMapping("/profile/{username}")
-    public String profile(@PathVariable String username, Model model) {
+    public String profile(@PathVariable String username, HttpServletRequest request, Model model) {
         // プロフィール取得
         UserProfileDto profile = displayUserProfileUseCase.execute(username);
 
+        // 現在のユーザーがプロフィール所有者かどうかを判定
+        boolean isOwner = false;
+        try {
+            String currentUsername = sessionManager.getUsername(request);
+            isOwner = currentUsername != null && currentUsername.equals(username);
+        } catch (Exception e) {
+            // セッション取得エラーは無視（未ログイン状態）
+        }
+
         model.addAttribute("profile", profile);
+        model.addAttribute("isOwner", isOwner);
         return "profile";
     }
 
