@@ -7,6 +7,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -47,27 +49,13 @@ class LikeTweetUseCaseTest {
         verify(apiRepository).likeTweet(jwtToken, tweetId);
     }
 
-    @Test
-    void shouldThrowUnauthorizedExceptionWhenTokenIsNull() {
+    @ParameterizedTest
+    @NullAndEmptySource
+    void shouldThrowUnauthorizedExceptionForInvalidToken(String token) {
         // Arrange
         String tweetId = "tweet123";
 
-        when(sessionManager.getJwtToken(request)).thenReturn(null);
-
-        // Act & Assert
-        UnauthorizedException exception = assertThrows(UnauthorizedException.class,
-                () -> likeTweetUseCase.execute(request, tweetId));
-
-        assertEquals("ログインが必要です", exception.getMessage());
-        verify(apiRepository, never()).likeTweet(any(), any());
-    }
-
-    @Test
-    void shouldThrowUnauthorizedExceptionWhenTokenIsBlank() {
-        // Arrange
-        String tweetId = "tweet123";
-
-        when(sessionManager.getJwtToken(request)).thenReturn("");
+        when(sessionManager.getJwtToken(request)).thenReturn(token);
 
         // Act & Assert
         UnauthorizedException exception = assertThrows(UnauthorizedException.class,

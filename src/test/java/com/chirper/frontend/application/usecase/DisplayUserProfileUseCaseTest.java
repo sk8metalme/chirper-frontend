@@ -44,4 +44,17 @@ class DisplayUserProfileUseCaseTest {
         assertEquals(expectedProfile.username(), result.username());
         verify(apiRepository).getUserProfile(username);
     }
+
+    @Test
+    void shouldPropagateExceptionWhenRepositoryFails() {
+        // Arrange
+        String username = "testuser";
+        when(apiRepository.getUserProfile(username))
+                .thenThrow(new UnsupportedOperationException("getUserProfile by username is not yet implemented"));
+
+        // Act & Assert
+        assertThrows(UnsupportedOperationException.class,
+                () -> displayUserProfileUseCase.execute(username));
+        verify(apiRepository).getUserProfile(username);
+    }
 }

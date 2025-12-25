@@ -8,6 +8,7 @@ import com.chirper.frontend.infrastructure.exception.BackendApiException;
 import okhttp3.mockwebserver.MockResponse;
 import okhttp3.mockwebserver.MockWebServer;
 import okhttp3.mockwebserver.RecordedRequest;
+import okhttp3.mockwebserver.SocketPolicy;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -22,7 +23,7 @@ import static org.junit.jupiter.api.Assertions.*;
 /**
  * BackendApiClient tests with mockWebServer.
  *
- * Note: This test class uses mockWebServer.shutdown() in some tests to simulate network errors.
+ * Note: This test class uses SocketPolicy.DISCONNECT_AT_START to simulate network errors.
  * To prevent interference between tests when running in parallel, this class is configured
  * to run tests sequentially using @Execution(ExecutionMode.SAME_THREAD).
  */
@@ -467,11 +468,11 @@ class BackendApiClientTest {
     }
 
     @Test
-    void shouldThrowBackendApiExceptionOnNetworkErrorInFollowUser() throws IOException {
+    void shouldThrowBackendApiExceptionOnNetworkErrorInFollowUser() {
         // Given
         String jwtToken = "valid-token";
         String userId = "user456";
-        mockWebServer.shutdown();
+        mockWebServer.enqueue(new MockResponse().setSocketPolicy(SocketPolicy.DISCONNECT_AT_START));
 
         // When & Then
         BackendApiException exception = assertThrows(BackendApiException.class,
@@ -480,11 +481,11 @@ class BackendApiClientTest {
     }
 
     @Test
-    void shouldThrowBackendApiExceptionOnNetworkErrorInUnfollowUser() throws IOException {
+    void shouldThrowBackendApiExceptionOnNetworkErrorInUnfollowUser() {
         // Given
         String jwtToken = "valid-token";
         String userId = "user456";
-        mockWebServer.shutdown();
+        mockWebServer.enqueue(new MockResponse().setSocketPolicy(SocketPolicy.DISCONNECT_AT_START));
 
         // When & Then
         BackendApiException exception = assertThrows(BackendApiException.class,
@@ -493,11 +494,11 @@ class BackendApiClientTest {
     }
 
     @Test
-    void shouldThrowBackendApiExceptionOnNetworkErrorInLikeTweet() throws IOException {
+    void shouldThrowBackendApiExceptionOnNetworkErrorInLikeTweet() {
         // Given
         String jwtToken = "valid-token";
         String tweetId = "tweet123";
-        mockWebServer.shutdown();
+        mockWebServer.enqueue(new MockResponse().setSocketPolicy(SocketPolicy.DISCONNECT_AT_START));
 
         // When & Then
         BackendApiException exception = assertThrows(BackendApiException.class,
@@ -506,11 +507,11 @@ class BackendApiClientTest {
     }
 
     @Test
-    void shouldThrowBackendApiExceptionOnNetworkErrorInUnlikeTweet() throws IOException {
+    void shouldThrowBackendApiExceptionOnNetworkErrorInUnlikeTweet() {
         // Given
         String jwtToken = "valid-token";
         String tweetId = "tweet123";
-        mockWebServer.shutdown();
+        mockWebServer.enqueue(new MockResponse().setSocketPolicy(SocketPolicy.DISCONNECT_AT_START));
 
         // When & Then
         BackendApiException exception = assertThrows(BackendApiException.class,
@@ -519,11 +520,11 @@ class BackendApiClientTest {
     }
 
     @Test
-    void shouldThrowBackendApiExceptionOnNetworkErrorInRetweetTweet() throws IOException {
+    void shouldThrowBackendApiExceptionOnNetworkErrorInRetweetTweet() {
         // Given
         String jwtToken = "valid-token";
         String tweetId = "tweet123";
-        mockWebServer.shutdown();
+        mockWebServer.enqueue(new MockResponse().setSocketPolicy(SocketPolicy.DISCONNECT_AT_START));
 
         // When & Then
         BackendApiException exception = assertThrows(BackendApiException.class,
@@ -532,11 +533,11 @@ class BackendApiClientTest {
     }
 
     @Test
-    void shouldThrowBackendApiExceptionOnNetworkErrorInUnretweetTweet() throws IOException {
+    void shouldThrowBackendApiExceptionOnNetworkErrorInUnretweetTweet() {
         // Given
         String jwtToken = "valid-token";
         String tweetId = "tweet123";
-        mockWebServer.shutdown();
+        mockWebServer.enqueue(new MockResponse().setSocketPolicy(SocketPolicy.DISCONNECT_AT_START));
 
         // When & Then
         BackendApiException exception = assertThrows(BackendApiException.class,
@@ -545,11 +546,11 @@ class BackendApiClientTest {
     }
 
     @Test
-    void shouldThrowBackendApiExceptionOnNetworkErrorInDeleteTweet() throws IOException {
+    void shouldThrowBackendApiExceptionOnNetworkErrorInDeleteTweet() {
         // Given
         String jwtToken = "valid-token";
         String tweetId = "tweet123";
-        mockWebServer.shutdown();
+        mockWebServer.enqueue(new MockResponse().setSocketPolicy(SocketPolicy.DISCONNECT_AT_START));
 
         // When & Then
         BackendApiException exception = assertThrows(BackendApiException.class,
