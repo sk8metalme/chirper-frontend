@@ -12,6 +12,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -85,29 +87,14 @@ class SubmitTweetUseCaseTest {
         verify(apiRepository, never()).createTweet(any(), any());
     }
 
-    @Test
-    void shouldThrowUnauthorizedExceptionWhenTokenIsNull() {
+    @ParameterizedTest
+    @NullAndEmptySource
+    void shouldThrowUnauthorizedExceptionForInvalidToken(String token) {
         // Arrange
         String content = "Hello, world!";
 
         when(validationService.validateTweetForm(content)).thenReturn(ValidationResult.valid());
-        when(sessionManager.getJwtToken(request)).thenReturn(null);
-
-        // Act & Assert
-        UnauthorizedException exception = assertThrows(UnauthorizedException.class,
-                () -> submitTweetUseCase.execute(request, content));
-
-        assertEquals("ログインが必要です", exception.getMessage());
-        verify(apiRepository, never()).createTweet(any(), any());
-    }
-
-    @Test
-    void shouldThrowUnauthorizedExceptionWhenTokenIsBlank() {
-        // Arrange
-        String content = "Hello, world!";
-
-        when(validationService.validateTweetForm(content)).thenReturn(ValidationResult.valid());
-        when(sessionManager.getJwtToken(request)).thenReturn("");
+        when(sessionManager.getJwtToken(request)).thenReturn(token);
 
         // Act & Assert
         UnauthorizedException exception = assertThrows(UnauthorizedException.class,

@@ -8,8 +8,9 @@ import com.chirper.frontend.application.dto.UserProfileDto;
 import com.chirper.frontend.infrastructure.client.BackendApiClient;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.Instant;
 import java.util.Collections;
@@ -17,6 +18,7 @@ import java.util.Collections;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
+@ExtendWith(MockitoExtension.class)
 class BackendApiRepositoryImplTest {
 
     private BackendApiRepositoryImpl repository;
@@ -26,7 +28,6 @@ class BackendApiRepositoryImplTest {
 
     @BeforeEach
     void setUp() {
-        MockitoAnnotations.openMocks(this);
         repository = new BackendApiRepositoryImpl(apiClient);
     }
 

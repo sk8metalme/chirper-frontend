@@ -11,12 +11,22 @@ import okhttp3.mockwebserver.RecordedRequest;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.Execution;
+import org.junit.jupiter.api.parallel.ExecutionMode;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import java.io.IOException;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+/**
+ * BackendApiClient tests with mockWebServer.
+ *
+ * Note: This test class uses mockWebServer.shutdown() in some tests to simulate network errors.
+ * To prevent interference between tests when running in parallel, this class is configured
+ * to run tests sequentially using @Execution(ExecutionMode.SAME_THREAD).
+ */
+@Execution(ExecutionMode.SAME_THREAD)
 class BackendApiClientTest {
 
     private MockWebServer mockWebServer;
