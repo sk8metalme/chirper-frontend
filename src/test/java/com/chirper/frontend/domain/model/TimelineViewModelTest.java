@@ -14,8 +14,7 @@ class TimelineViewModelTest {
         TimelineViewModel viewModel = new TimelineViewModel(
             Collections.emptyList(),
             0,  // currentPage
-            2,  // totalPages
-            false
+            2   // totalPages
         );
 
         // Act & Assert
@@ -28,8 +27,7 @@ class TimelineViewModelTest {
         TimelineViewModel viewModel = new TimelineViewModel(
             Collections.emptyList(),
             1,  // currentPage
-            2,  // totalPages
-            false
+            2   // totalPages
         );
 
         // Act & Assert
@@ -42,8 +40,7 @@ class TimelineViewModelTest {
         TimelineViewModel viewModel = new TimelineViewModel(
             Collections.emptyList(),
             0,  // currentPage
-            1,  // totalPages
-            false
+            1   // totalPages
         );
 
         // Act & Assert
@@ -56,8 +53,7 @@ class TimelineViewModelTest {
         TimelineViewModel viewModel = new TimelineViewModel(
             Collections.emptyList(),
             0,
-            1,
-            false
+            1
         );
 
         // Act & Assert
@@ -74,8 +70,7 @@ class TimelineViewModelTest {
         TimelineViewModel viewModel = new TimelineViewModel(
             tweets,
             0,
-            1,
-            false
+            1
         );
 
         // Act & Assert
@@ -86,7 +81,7 @@ class TimelineViewModelTest {
     void constructor_ツイートリストがnullの場合は例外をスローする() {
         // Act & Assert
         assertThrows(NullPointerException.class, () -> {
-            new TimelineViewModel(null, 0, 1, false);
+            new TimelineViewModel(null, 0, 1);
         }, "ツイートリストがnullの場合、NullPointerExceptionをスローする");
     }
 
@@ -94,7 +89,7 @@ class TimelineViewModelTest {
     void constructor_負のページ番号の場合は例外をスローする() {
         // Act & Assert
         assertThrows(IllegalArgumentException.class, () -> {
-            new TimelineViewModel(Collections.emptyList(), -1, 1, false);
+            new TimelineViewModel(Collections.emptyList(), -1, 1);
         }, "負のページ番号の場合、IllegalArgumentExceptionをスローする");
     }
 
@@ -102,7 +97,7 @@ class TimelineViewModelTest {
     void constructor_負の総ページ数の場合は例外をスローする() {
         // Act & Assert
         assertThrows(IllegalArgumentException.class, () -> {
-            new TimelineViewModel(Collections.emptyList(), 0, -1, false);
+            new TimelineViewModel(Collections.emptyList(), 0, -1);
         }, "負の総ページ数の場合、IllegalArgumentExceptionをスローする");
     }
 

@@ -38,7 +38,7 @@ class TimelineControllerTest {
         // Arrange
         TimelineViewModel timeline = new TimelineViewModel(
                 List.of(), // 空のツイートリスト
-                0, 1, false
+                0, 1
         );
         when(displayTimelineUseCase.execute(any(), eq(0), eq(20)))
                 .thenReturn(timeline);
@@ -59,7 +59,7 @@ class TimelineControllerTest {
         // Arrange
         TimelineViewModel timeline = new TimelineViewModel(
                 List.of(), // 空のツイートリスト
-                2, 5, true
+                2, 5
         );
         when(displayTimelineUseCase.execute(any(), eq(2), eq(10)))
                 .thenReturn(timeline);
@@ -80,7 +80,7 @@ class TimelineControllerTest {
     void shouldNormalizeNegativePageToZero() throws Exception {
         // Arrange
         TimelineViewModel timeline = new TimelineViewModel(
-                List.of(), 0, 1, false
+                List.of(), 0, 1
         );
         when(displayTimelineUseCase.execute(any(), eq(0), eq(20)))
                 .thenReturn(timeline);
@@ -98,7 +98,7 @@ class TimelineControllerTest {
     void shouldNormalizeSizeTo100Maximum() throws Exception {
         // Arrange
         TimelineViewModel timeline = new TimelineViewModel(
-                List.of(), 0, 1, false
+                List.of(), 0, 1
         );
         when(displayTimelineUseCase.execute(any(), eq(0), eq(100)))
                 .thenReturn(timeline);

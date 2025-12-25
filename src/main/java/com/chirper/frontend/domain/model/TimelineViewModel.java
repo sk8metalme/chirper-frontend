@@ -12,7 +12,6 @@ public class TimelineViewModel {
     private final List<TweetViewModel> tweets;
     private final int currentPage;
     private final int totalPages;
-    private final boolean hasNextPage;
 
     /**
      * TimelineViewModelを構築する
@@ -20,11 +19,10 @@ public class TimelineViewModel {
      * @param tweets ツイートリスト（nullは不可）
      * @param currentPage 現在のページ番号（0以上）
      * @param totalPages 総ページ数（0以上）
-     * @param hasNextPage 次のページが存在するか（現在は未使用だが、将来的な拡張のため保持）
      * @throws NullPointerException tweetsがnullの場合
      * @throws IllegalArgumentException currentPageまたはtotalPagesが負の場合
      */
-    public TimelineViewModel(List<TweetViewModel> tweets, int currentPage, int totalPages, boolean hasNextPage) {
+    public TimelineViewModel(List<TweetViewModel> tweets, int currentPage, int totalPages) {
         Objects.requireNonNull(tweets, "ツイートリストはnullにできません");
 
         if (currentPage < 0) {
@@ -38,7 +36,6 @@ public class TimelineViewModel {
         this.tweets = tweets;
         this.currentPage = currentPage;
         this.totalPages = totalPages;
-        this.hasNextPage = hasNextPage;
     }
 
     /**

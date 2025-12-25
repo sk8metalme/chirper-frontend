@@ -49,15 +49,46 @@ class ProfileControllerTest {
         );
         when(displayUserProfileUseCase.execute("testuser"))
                 .thenReturn(profile);
+        when(sessionManager.getUsername(any())).thenReturn("viewer");
 
         // Act & Assert
         mockMvc.perform(get("/profile/testuser")
                         .with(user("viewer")))
                 .andExpect(status().isOk())
                 .andExpect(view().name("profile"))
-                .andExpect(model().attributeExists("profile"));
+                .andExpect(model().attributeExists("profile"))
+                .andExpect(model().attribute("isOwner", false));
 
         verify(displayUserProfileUseCase).execute("testuser");
+    }
+
+    @Test
+    void shouldDisplayUserProfileWithIsOwnerTrueForOwner() throws Exception {
+        // Arrange
+        UserProfileDto profile = new UserProfileDto(
+                "user-123", "testuser", "test@example.com",
+                "Test Bio", 10, 5, false
+        );
+        when(displayUserProfileUseCase.execute("testuser"))
+                .thenReturn(profile);
+        when(sessionManager.getUsername(any())).thenReturn("testuser");
+
+        // Act & Assert
+        mockMvc.perform(get("/profile/testuser")
+                        .with(user("testuser")))
+                .andExpect(status().isOk())
+                .andExpect(view().name("profile"))
+                .andExpect(model().attributeExists("profile"))
+                .andExpect(model().attribute("isOwner", true));
+
+        verify(displayUserProfileUseCase).execute("testuser");
+    }
+
+    @Test
+    void shouldReturnForbiddenWhenNotAuthenticated() throws Exception {
+        // Act & Assert - 未ログイン状態ではプロフィールページへのアクセスは認証エラー
+        mockMvc.perform(get("/profile/testuser"))
+                .andExpect(status().isForbidden());
     }
 
     @Test

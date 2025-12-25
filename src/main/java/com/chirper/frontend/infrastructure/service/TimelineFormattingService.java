@@ -22,13 +22,10 @@ public class TimelineFormattingService implements ITimelineFormattingService {
                 .map(this::convertToViewModel)
                 .toList();
 
-        boolean hasNextPage = currentPage < totalPages - 1;
-
         return new TimelineViewModel(
                 viewModels,
                 currentPage,
-                totalPages,
-                hasNextPage
+                totalPages
         );
     }
 
