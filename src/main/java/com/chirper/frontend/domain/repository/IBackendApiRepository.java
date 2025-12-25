@@ -131,4 +131,26 @@ public interface IBackendApiRepository {
      * @param tweetId ツイートID
      */
     void retweet(String jwtToken, String tweetId);
+
+    /**
+     * フォロワー一覧取得
+     *
+     * @param jwtToken JWTトークン
+     * @param username ユーザー名
+     * @param page ページ番号
+     * @param size ページサイズ
+     * @return フォロワー一覧DTO
+     */
+    FollowListDto getFollowers(String jwtToken, String username, int page, int size);
+
+    /**
+     * フォロー中一覧取得
+     *
+     * @param jwtToken JWTトークン
+     * @param username ユーザー名
+     * @param page ページ番号
+     * @param size ページサイズ
+     * @return フォロー中一覧DTO
+     */
+    FollowListDto getFollowing(String jwtToken, String username, int page, int size);
 }

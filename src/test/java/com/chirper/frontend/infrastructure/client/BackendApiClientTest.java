@@ -1,5 +1,6 @@
 package com.chirper.frontend.infrastructure.client;
 
+import com.chirper.frontend.application.dto.FollowListDto;
 import com.chirper.frontend.application.dto.LoginResponse;
 import com.chirper.frontend.application.dto.RegisterResponse;
 import com.chirper.frontend.application.dto.TimelineDto;
@@ -556,5 +557,91 @@ class BackendApiClientTest {
         BackendApiException exception = assertThrows(BackendApiException.class,
                 () -> client.deleteTweet(jwtToken, tweetId));
         assertEquals("ツイート削除中にエラーが発生しました", exception.getMessage());
+    }
+
+    @Test
+    void shouldGetFollowersSuccessfully() throws InterruptedException {
+        // Given
+        String jwtToken = "valid-token";
+        String username = "testuser";
+        int page = 0;
+        int size = 100;
+        String responseJson = "{\"users\":[],\"currentPage\":0,\"totalPages\":1,\"totalItems\":0}";
+
+        mockWebServer.enqueue(new MockResponse()
+                .setBody(responseJson)
+                .addHeader("Content-Type", "application/json"));
+
+        // When
+        FollowListDto result = client.getFollowers(jwtToken, username, page, size);
+
+        // Then
+        assertNotNull(result);
+        assertEquals(0, result.currentPage());
+        assertEquals(1, result.totalPages());
+        assertEquals(0, result.totalItems());
+
+        RecordedRequest request = mockWebServer.takeRequest();
+        assertEquals("GET", request.getMethod());
+        assertTrue(request.getPath().contains("/users/" + username + "/followers"));
+        assertTrue(request.getPath().contains("page=" + page));
+        assertTrue(request.getPath().contains("size=" + size));
+        assertEquals("Bearer " + jwtToken, request.getHeader("Authorization"));
+    }
+
+    @Test
+    void shouldGetFollowingSuccessfully() throws InterruptedException {
+        // Given
+        String jwtToken = "valid-token";
+        String username = "testuser";
+        int page = 0;
+        int size = 100;
+        String responseJson = "{\"users\":[],\"currentPage\":0,\"totalPages\":1,\"totalItems\":0}";
+
+        mockWebServer.enqueue(new MockResponse()
+                .setBody(responseJson)
+                .addHeader("Content-Type", "application/json"));
+
+        // When
+        FollowListDto result = client.getFollowing(jwtToken, username, page, size);
+
+        // Then
+        assertNotNull(result);
+        assertEquals(0, result.currentPage());
+        assertEquals(1, result.totalPages());
+        assertEquals(0, result.totalItems());
+
+        RecordedRequest request = mockWebServer.takeRequest();
+        assertEquals("GET", request.getMethod());
+        assertTrue(request.getPath().contains("/users/" + username + "/following"));
+        assertTrue(request.getPath().contains("page=" + page));
+        assertTrue(request.getPath().contains("size=" + size));
+        assertEquals("Bearer " + jwtToken, request.getHeader("Authorization"));
+    }
+
+    @Test
+    void shouldThrowBackendApiExceptionOnNetworkErrorInGetFollowers() {
+        // Given
+        String jwtToken = "valid-token";
+        String username = "testuser";
+        mockWebServer.enqueue(new MockResponse().setSocketPolicy(SocketPolicy.DISCONNECT_AT_START));
+
+        // When & Then
+        BackendApiException exception = assertThrows(BackendApiException.class,
+                () -> client.getFollowers(jwtToken, username, 0, 100));
+        assertEquals("フォロワー一覧取得中にエラーが発生しました", exception.getMessage());
+    }
+
+    @Test
+    void shouldThrowBackendApiExceptionOnNetworkErrorInGetFollowing() {
+        // Given
+        String jwtToken = "valid-token";
+        String username = "testuser";
+        mockWebServer.enqueue(new MockResponse().setSocketPolicy(SocketPolicy.DISCONNECT_AT_START));
+
+        // When & Then
+        BackendApiException exception = assertThrows(BackendApiException.class,
+                () -> client.getFollowing(jwtToken, username, 0, 100));
+        assertEquals("フォロー中一覧取得中にエラーが発生しました", exception.getMessage());
     }
 }

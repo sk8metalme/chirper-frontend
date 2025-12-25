@@ -1,7 +1,10 @@
 package com.chirper.frontend.presentation.controller;
 
+import com.chirper.frontend.application.dto.FollowListDto;
 import com.chirper.frontend.application.usecase.FollowUserUseCase;
 import com.chirper.frontend.application.usecase.UnfollowUserUseCase;
+import com.chirper.frontend.domain.repository.IBackendApiRepository;
+import com.chirper.frontend.infrastructure.session.JwtSessionManager;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -22,13 +25,19 @@ public class SocialController {
 
     private final FollowUserUseCase followUserUseCase;
     private final UnfollowUserUseCase unfollowUserUseCase;
+    private final IBackendApiRepository apiRepository;
+    private final JwtSessionManager sessionManager;
 
     public SocialController(
             FollowUserUseCase followUserUseCase,
-            UnfollowUserUseCase unfollowUserUseCase
+            UnfollowUserUseCase unfollowUserUseCase,
+            IBackendApiRepository apiRepository,
+            JwtSessionManager sessionManager
     ) {
         this.followUserUseCase = followUserUseCase;
         this.unfollowUserUseCase = unfollowUserUseCase;
+        this.apiRepository = apiRepository;
+        this.sessionManager = sessionManager;
     }
 
     /**
@@ -81,10 +90,16 @@ public class SocialController {
      * フォロワー一覧表示
      */
     @GetMapping("/followers/{username}")
-    public String followers(@PathVariable String username, Model model) {
-        // TODO: Phase 2.5 - BackendApiClientにgetFollowersメソッドを追加後に実装
+    public String followers(
+            @PathVariable String username,
+            HttpServletRequest request,
+            Model model
+    ) {
+        String jwtToken = sessionManager.getJwtToken(request);
+        FollowListDto followersDto = apiRepository.getFollowers(jwtToken, username, 0, 100);
+
         model.addAttribute("username", username);
-        model.addAttribute("followers", java.util.Collections.emptyList());
+        model.addAttribute("followers", followersDto.users());
         return "followers";
     }
 
@@ -92,10 +107,16 @@ public class SocialController {
      * フォロー中一覧表示
      */
     @GetMapping("/following/{username}")
-    public String following(@PathVariable String username, Model model) {
-        // TODO: Phase 2.5 - BackendApiClientにgetFollowingメソッドを追加後に実装
+    public String following(
+            @PathVariable String username,
+            HttpServletRequest request,
+            Model model
+    ) {
+        String jwtToken = sessionManager.getJwtToken(request);
+        FollowListDto followingDto = apiRepository.getFollowing(jwtToken, username, 0, 100);
+
         model.addAttribute("username", username);
-        model.addAttribute("following", java.util.Collections.emptyList());
+        model.addAttribute("following", followingDto.users());
         return "following";
     }
 

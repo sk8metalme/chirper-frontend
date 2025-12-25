@@ -1,14 +1,19 @@
 package com.chirper.frontend.presentation.controller;
 
+import com.chirper.frontend.application.dto.FollowListDto;
 import com.chirper.frontend.application.usecase.FollowUserUseCase;
 import com.chirper.frontend.application.usecase.UnfollowUserUseCase;
+import com.chirper.frontend.domain.repository.IBackendApiRepository;
 import com.chirper.frontend.infrastructure.config.SecurityConfig;
+import com.chirper.frontend.infrastructure.session.JwtSessionManager;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.web.servlet.MockMvc;
+
+import java.util.Collections;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -34,6 +39,12 @@ class SocialControllerTest {
 
     @MockBean
     private UnfollowUserUseCase unfollowUserUseCase;
+
+    @MockBean
+    private IBackendApiRepository apiRepository;
+
+    @MockBean
+    private JwtSessionManager sessionManager;
 
     @Test
     void shouldFollowUserSuccessfully() throws Exception {
@@ -101,21 +112,43 @@ class SocialControllerTest {
 
     @Test
     void shouldDisplayFollowersList() throws Exception {
+        // Arrange
+        String jwtToken = "valid-token";
+        FollowListDto followersDto = new FollowListDto(Collections.emptyList(), 0, 1, 0);
+        when(sessionManager.getJwtToken(any())).thenReturn(jwtToken);
+        when(apiRepository.getFollowers(eq(jwtToken), eq("testuser"), eq(0), eq(100)))
+                .thenReturn(followersDto);
+
+        // Act & Assert
         mockMvc.perform(get("/followers/testuser")
                         .with(user("viewer")))
                 .andExpect(status().isOk())
                 .andExpect(view().name("followers"))
                 .andExpect(model().attribute("username", "testuser"))
                 .andExpect(model().attributeExists("followers"));
+
+        verify(sessionManager).getJwtToken(any());
+        verify(apiRepository).getFollowers(eq(jwtToken), eq("testuser"), eq(0), eq(100));
     }
 
     @Test
     void shouldDisplayFollowingList() throws Exception {
+        // Arrange
+        String jwtToken = "valid-token";
+        FollowListDto followingDto = new FollowListDto(Collections.emptyList(), 0, 1, 0);
+        when(sessionManager.getJwtToken(any())).thenReturn(jwtToken);
+        when(apiRepository.getFollowing(eq(jwtToken), eq("testuser"), eq(0), eq(100)))
+                .thenReturn(followingDto);
+
+        // Act & Assert
         mockMvc.perform(get("/following/testuser")
                         .with(user("viewer")))
                 .andExpect(status().isOk())
                 .andExpect(view().name("following"))
                 .andExpect(model().attribute("username", "testuser"))
                 .andExpect(model().attributeExists("following"));
+
+        verify(sessionManager).getJwtToken(any());
+        verify(apiRepository).getFollowing(eq(jwtToken), eq("testuser"), eq(0), eq(100));
     }
 }

@@ -1,5 +1,6 @@
 package com.chirper.frontend.infrastructure.repository;
 
+import com.chirper.frontend.application.dto.FollowListDto;
 import com.chirper.frontend.application.dto.LoginResponse;
 import com.chirper.frontend.application.dto.RegisterResponse;
 import com.chirper.frontend.application.dto.TimelineDto;
@@ -86,5 +87,15 @@ public class BackendApiRepositoryImpl implements IBackendApiRepository {
     @Override
     public void retweet(String jwtToken, String tweetId) {
         apiClient.retweetTweet(jwtToken, tweetId);
+    }
+
+    @Override
+    public FollowListDto getFollowers(String jwtToken, String username, int page, int size) {
+        return apiClient.getFollowers(jwtToken, username, page, size);
+    }
+
+    @Override
+    public FollowListDto getFollowing(String jwtToken, String username, int page, int size) {
+        return apiClient.getFollowing(jwtToken, username, page, size);
     }
 }

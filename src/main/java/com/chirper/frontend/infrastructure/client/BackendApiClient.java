@@ -273,6 +273,50 @@ public class BackendApiClient {
     }
 
     /**
+     * フォロワー一覧を取得
+     */
+    public FollowListDto getFollowers(String jwtToken, String username, int page, int size) {
+        try {
+            return webClient.get()
+                    .uri(uriBuilder -> uriBuilder
+                            .path("/api/users/{username}/followers")
+                            .queryParam("page", page)
+                            .queryParam("size", size)
+                            .build(username))
+                    .header("Authorization", "Bearer " + jwtToken)
+                    .retrieve()
+                    .bodyToMono(FollowListDto.class)
+                    .block();
+        } catch (WebClientResponseException e) {
+            throw mapException(e);
+        } catch (Exception e) {
+            throw new BackendApiException("フォロワー一覧取得中にエラーが発生しました", e);
+        }
+    }
+
+    /**
+     * フォロー中一覧を取得
+     */
+    public FollowListDto getFollowing(String jwtToken, String username, int page, int size) {
+        try {
+            return webClient.get()
+                    .uri(uriBuilder -> uriBuilder
+                            .path("/api/users/{username}/following")
+                            .queryParam("page", page)
+                            .queryParam("size", size)
+                            .build(username))
+                    .header("Authorization", "Bearer " + jwtToken)
+                    .retrieve()
+                    .bodyToMono(FollowListDto.class)
+                    .block();
+        } catch (WebClientResponseException e) {
+            throw mapException(e);
+        } catch (Exception e) {
+            throw new BackendApiException("フォロー中一覧取得中にエラーが発生しました", e);
+        }
+    }
+
+    /**
      * WebClientの例外をBackendApiExceptionにマッピング
      */
     private BackendApiException mapException(WebClientResponseException e) {
