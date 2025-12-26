@@ -867,7 +867,7 @@ class BackendApiClientTest {
 
         RecordedRequest request = mockWebServer.takeRequest();
         assertEquals("GET", request.getMethod());
-        assertTrue(request.getPath().contains("/api/v1/users/profile/" + username));
+        assertTrue(request.getPath().contains("/api/v1/users/" + username));
     }
 
     @Test

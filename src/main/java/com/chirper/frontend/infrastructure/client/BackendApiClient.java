@@ -117,7 +117,7 @@ public class BackendApiClient {
     public UserProfileDto getUserProfile(String username) {
         try {
             return webClient.get()
-                    .uri("/api/v1/users/profile/{username}", username)
+                    .uri("/api/v1/users/{username}", username)
                     .retrieve()
                     .bodyToMono(UserProfileDto.class)
                     .block();
