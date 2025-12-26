@@ -136,6 +136,27 @@ class BackendApiClientTest {
     }
 
     @Test
+    void shouldLimitSizeToMaximumInGetTimeline() throws InterruptedException {
+        // Given
+        String jwtToken = "valid-token";
+        int requestedSize = 500; // 上限を超えるサイズ
+        String responseJson = "{\"tweets\":[],\"currentPage\":0,\"totalPages\":1,\"totalElements\":0}";
+
+        mockWebServer.enqueue(new MockResponse()
+                .setBody(responseJson)
+                .addHeader("Content-Type", "application/json"));
+
+        // When
+        client.getTimeline(jwtToken, 0, requestedSize);
+
+        // Then
+        RecordedRequest request = mockWebServer.takeRequest();
+        // size=100 に制限されていることを確認
+        assertTrue(request.getPath().contains("size=100"));
+        assertFalse(request.getPath().contains("size=500"));
+    }
+
+    @Test
     void shouldGetUserProfileSuccessfully() throws InterruptedException {
         // Given
         String jwtToken = "valid-token";
@@ -859,5 +880,397 @@ class BackendApiClientTest {
         BackendApiException exception = assertThrows(BackendApiException.class,
                 () -> client.getUserProfile(username));
         assertEquals("ユーザープロフィール取得中にエラーが発生しました", exception.getMessage());
+    }
+
+    // ========== WebClientResponseException Tests (for coverage improvement) ==========
+
+    @Test
+    void shouldThrowBackendApiExceptionOn401InRegister() {
+        // Given
+        mockWebServer.enqueue(new MockResponse()
+                .setResponseCode(401)
+                .setBody("{\"error\":\"USER_ALREADY_EXISTS\"}"));
+
+        // When & Then
+        BackendApiException exception = assertThrows(BackendApiException.class,
+                () -> client.register("user", "test@example.com", "password"));
+        assertEquals(401, exception.getStatusCode());
+    }
+
+    @Test
+    void shouldThrowBackendApiExceptionOn500InRegister() {
+        // Given
+        mockWebServer.enqueue(new MockResponse()
+                .setResponseCode(500)
+                .setBody("{\"error\":\"INTERNAL_SERVER_ERROR\"}"));
+
+        // When & Then
+        BackendApiException exception = assertThrows(BackendApiException.class,
+                () -> client.register("user", "test@example.com", "password"));
+        assertEquals(500, exception.getStatusCode());
+    }
+
+    @Test
+    void shouldThrowBackendApiExceptionOn401InGetTimeline() {
+        // Given
+        mockWebServer.enqueue(new MockResponse()
+                .setResponseCode(401)
+                .setBody("{\"error\":\"UNAUTHORIZED\"}"));
+
+        // When & Then
+        BackendApiException exception = assertThrows(BackendApiException.class,
+                () -> client.getTimeline("invalid-token", 0, 20));
+        assertEquals(401, exception.getStatusCode());
+    }
+
+    @Test
+    void shouldThrowBackendApiExceptionOn403InGetTimeline() {
+        // Given
+        mockWebServer.enqueue(new MockResponse()
+                .setResponseCode(403)
+                .setBody("{\"error\":\"FORBIDDEN\"}"));
+
+        // When & Then
+        BackendApiException exception = assertThrows(BackendApiException.class,
+                () -> client.getTimeline("token", 0, 20));
+        assertEquals(403, exception.getStatusCode());
+    }
+
+    @Test
+    void shouldThrowBackendApiExceptionOn404InGetUserProfileById() {
+        // Given
+        mockWebServer.enqueue(new MockResponse()
+                .setResponseCode(404)
+                .setBody("{\"error\":\"USER_NOT_FOUND\"}"));
+
+        // When & Then
+        BackendApiException exception = assertThrows(BackendApiException.class,
+                () -> client.getUserProfile("token", "nonexistent-user"));
+        assertEquals(404, exception.getStatusCode());
+    }
+
+    @Test
+    void shouldThrowBackendApiExceptionOn401InGetUserProfileById() {
+        // Given
+        mockWebServer.enqueue(new MockResponse()
+                .setResponseCode(401)
+                .setBody("{\"error\":\"UNAUTHORIZED\"}"));
+
+        // When & Then
+        BackendApiException exception = assertThrows(BackendApiException.class,
+                () -> client.getUserProfile("invalid-token", "user123"));
+        assertEquals(401, exception.getStatusCode());
+    }
+
+    @Test
+    void shouldThrowBackendApiExceptionOn404InGetUserProfileByUsername() {
+        // Given
+        mockWebServer.enqueue(new MockResponse()
+                .setResponseCode(404)
+                .setBody("{\"error\":\"USER_NOT_FOUND\"}"));
+
+        // When & Then
+        BackendApiException exception = assertThrows(BackendApiException.class,
+                () -> client.getUserProfile("nonexistent-user"));
+        assertEquals(404, exception.getStatusCode());
+    }
+
+    @Test
+    void shouldThrowBackendApiExceptionOn400InCreateTweet() {
+        // Given
+        mockWebServer.enqueue(new MockResponse()
+                .setResponseCode(400)
+                .setBody("{\"error\":\"INVALID_CONTENT\"}"));
+
+        // When & Then
+        BackendApiException exception = assertThrows(BackendApiException.class,
+                () -> client.createTweet("token", ""));
+        assertEquals(400, exception.getStatusCode());
+    }
+
+    @Test
+    void shouldThrowBackendApiExceptionOn401InCreateTweet() {
+        // Given
+        mockWebServer.enqueue(new MockResponse()
+                .setResponseCode(401)
+                .setBody("{\"error\":\"UNAUTHORIZED\"}"));
+
+        // When & Then
+        BackendApiException exception = assertThrows(BackendApiException.class,
+                () -> client.createTweet("invalid-token", "content"));
+        assertEquals(401, exception.getStatusCode());
+    }
+
+    @Test
+    void shouldThrowBackendApiExceptionOn404InGetTweet() {
+        // Given
+        mockWebServer.enqueue(new MockResponse()
+                .setResponseCode(404)
+                .setBody("{\"error\":\"TWEET_NOT_FOUND\"}"));
+
+        // When & Then
+        BackendApiException exception = assertThrows(BackendApiException.class,
+                () -> client.getTweet("nonexistent-tweet"));
+        assertEquals(404, exception.getStatusCode());
+    }
+
+    @Test
+    void shouldThrowBackendApiExceptionOn401InFollowUser() {
+        // Given
+        mockWebServer.enqueue(new MockResponse()
+                .setResponseCode(401)
+                .setBody("{\"error\":\"UNAUTHORIZED\"}"));
+
+        // When & Then
+        BackendApiException exception = assertThrows(BackendApiException.class,
+                () -> client.followUser("invalid-token", "user123"));
+        assertEquals(401, exception.getStatusCode());
+    }
+
+    @Test
+    void shouldThrowBackendApiExceptionOn404InFollowUser() {
+        // Given
+        mockWebServer.enqueue(new MockResponse()
+                .setResponseCode(404)
+                .setBody("{\"error\":\"USER_NOT_FOUND\"}"));
+
+        // When & Then
+        BackendApiException exception = assertThrows(BackendApiException.class,
+                () -> client.followUser("token", "nonexistent-user"));
+        assertEquals(404, exception.getStatusCode());
+    }
+
+    @Test
+    void shouldThrowBackendApiExceptionOn401InUnfollowUser() {
+        // Given
+        mockWebServer.enqueue(new MockResponse()
+                .setResponseCode(401)
+                .setBody("{\"error\":\"UNAUTHORIZED\"}"));
+
+        // When & Then
+        BackendApiException exception = assertThrows(BackendApiException.class,
+                () -> client.unfollowUser("invalid-token", "user123"));
+        assertEquals(401, exception.getStatusCode());
+    }
+
+    @Test
+    void shouldThrowBackendApiExceptionOn404InUnfollowUser() {
+        // Given
+        mockWebServer.enqueue(new MockResponse()
+                .setResponseCode(404)
+                .setBody("{\"error\":\"USER_NOT_FOUND\"}"));
+
+        // When & Then
+        BackendApiException exception = assertThrows(BackendApiException.class,
+                () -> client.unfollowUser("token", "nonexistent-user"));
+        assertEquals(404, exception.getStatusCode());
+    }
+
+    @Test
+    void shouldThrowBackendApiExceptionOn401InLikeTweet() {
+        // Given
+        mockWebServer.enqueue(new MockResponse()
+                .setResponseCode(401)
+                .setBody("{\"error\":\"UNAUTHORIZED\"}"));
+
+        // When & Then
+        BackendApiException exception = assertThrows(BackendApiException.class,
+                () -> client.likeTweet("invalid-token", "tweet123"));
+        assertEquals(401, exception.getStatusCode());
+    }
+
+    @Test
+    void shouldThrowBackendApiExceptionOn404InLikeTweet() {
+        // Given
+        mockWebServer.enqueue(new MockResponse()
+                .setResponseCode(404)
+                .setBody("{\"error\":\"TWEET_NOT_FOUND\"}"));
+
+        // When & Then
+        BackendApiException exception = assertThrows(BackendApiException.class,
+                () -> client.likeTweet("token", "nonexistent-tweet"));
+        assertEquals(404, exception.getStatusCode());
+    }
+
+    @Test
+    void shouldThrowBackendApiExceptionOn401InUnlikeTweet() {
+        // Given
+        mockWebServer.enqueue(new MockResponse()
+                .setResponseCode(401)
+                .setBody("{\"error\":\"UNAUTHORIZED\"}"));
+
+        // When & Then
+        BackendApiException exception = assertThrows(BackendApiException.class,
+                () -> client.unlikeTweet("invalid-token", "tweet123"));
+        assertEquals(401, exception.getStatusCode());
+    }
+
+    @Test
+    void shouldThrowBackendApiExceptionOn404InUnlikeTweet() {
+        // Given
+        mockWebServer.enqueue(new MockResponse()
+                .setResponseCode(404)
+                .setBody("{\"error\":\"TWEET_NOT_FOUND\"}"));
+
+        // When & Then
+        BackendApiException exception = assertThrows(BackendApiException.class,
+                () -> client.unlikeTweet("token", "nonexistent-tweet"));
+        assertEquals(404, exception.getStatusCode());
+    }
+
+    @Test
+    void shouldThrowBackendApiExceptionOn401InRetweetTweet() {
+        // Given
+        mockWebServer.enqueue(new MockResponse()
+                .setResponseCode(401)
+                .setBody("{\"error\":\"UNAUTHORIZED\"}"));
+
+        // When & Then
+        BackendApiException exception = assertThrows(BackendApiException.class,
+                () -> client.retweetTweet("invalid-token", "tweet123"));
+        assertEquals(401, exception.getStatusCode());
+    }
+
+    @Test
+    void shouldThrowBackendApiExceptionOn404InRetweetTweet() {
+        // Given
+        mockWebServer.enqueue(new MockResponse()
+                .setResponseCode(404)
+                .setBody("{\"error\":\"TWEET_NOT_FOUND\"}"));
+
+        // When & Then
+        BackendApiException exception = assertThrows(BackendApiException.class,
+                () -> client.retweetTweet("token", "nonexistent-tweet"));
+        assertEquals(404, exception.getStatusCode());
+    }
+
+    @Test
+    void shouldThrowBackendApiExceptionOn401InUnretweetTweet() {
+        // Given
+        mockWebServer.enqueue(new MockResponse()
+                .setResponseCode(401)
+                .setBody("{\"error\":\"UNAUTHORIZED\"}"));
+
+        // When & Then
+        BackendApiException exception = assertThrows(BackendApiException.class,
+                () -> client.unretweetTweet("invalid-token", "tweet123"));
+        assertEquals(401, exception.getStatusCode());
+    }
+
+    @Test
+    void shouldThrowBackendApiExceptionOn404InUnretweetTweet() {
+        // Given
+        mockWebServer.enqueue(new MockResponse()
+                .setResponseCode(404)
+                .setBody("{\"error\":\"TWEET_NOT_FOUND\"}"));
+
+        // When & Then
+        BackendApiException exception = assertThrows(BackendApiException.class,
+                () -> client.unretweetTweet("token", "nonexistent-tweet"));
+        assertEquals(404, exception.getStatusCode());
+    }
+
+    @Test
+    void shouldThrowBackendApiExceptionOn401InDeleteTweet() {
+        // Given
+        mockWebServer.enqueue(new MockResponse()
+                .setResponseCode(401)
+                .setBody("{\"error\":\"UNAUTHORIZED\"}"));
+
+        // When & Then
+        BackendApiException exception = assertThrows(BackendApiException.class,
+                () -> client.deleteTweet("invalid-token", "tweet123"));
+        assertEquals(401, exception.getStatusCode());
+    }
+
+    @Test
+    void shouldThrowBackendApiExceptionOn403InDeleteTweet() {
+        // Given
+        mockWebServer.enqueue(new MockResponse()
+                .setResponseCode(403)
+                .setBody("{\"error\":\"FORBIDDEN\"}"));
+
+        // When & Then
+        BackendApiException exception = assertThrows(BackendApiException.class,
+                () -> client.deleteTweet("token", "tweet123"));
+        assertEquals(403, exception.getStatusCode());
+    }
+
+    @Test
+    void shouldThrowBackendApiExceptionOn401InUpdateProfile() {
+        // Given
+        mockWebServer.enqueue(new MockResponse()
+                .setResponseCode(401)
+                .setBody("{\"error\":\"UNAUTHORIZED\"}"));
+
+        // When & Then
+        BackendApiException exception = assertThrows(BackendApiException.class,
+                () -> client.updateProfile("invalid-token", "name", "bio", "url"));
+        assertEquals(401, exception.getStatusCode());
+    }
+
+    @Test
+    void shouldThrowBackendApiExceptionOn400InUpdateProfile() {
+        // Given
+        mockWebServer.enqueue(new MockResponse()
+                .setResponseCode(400)
+                .setBody("{\"error\":\"INVALID_DATA\"}"));
+
+        // When & Then
+        BackendApiException exception = assertThrows(BackendApiException.class,
+                () -> client.updateProfile("token", "", "", ""));
+        assertEquals(400, exception.getStatusCode());
+    }
+
+    @Test
+    void shouldThrowBackendApiExceptionOn401InGetFollowers() {
+        // Given
+        mockWebServer.enqueue(new MockResponse()
+                .setResponseCode(401)
+                .setBody("{\"error\":\"UNAUTHORIZED\"}"));
+
+        // When & Then
+        BackendApiException exception = assertThrows(BackendApiException.class,
+                () -> client.getFollowers("invalid-token", "user", 0, 20));
+        assertEquals(401, exception.getStatusCode());
+    }
+
+    @Test
+    void shouldThrowBackendApiExceptionOn404InGetFollowers() {
+        // Given
+        mockWebServer.enqueue(new MockResponse()
+                .setResponseCode(404)
+                .setBody("{\"error\":\"USER_NOT_FOUND\"}"));
+
+        // When & Then
+        BackendApiException exception = assertThrows(BackendApiException.class,
+                () -> client.getFollowers("token", "nonexistent-user", 0, 20));
+        assertEquals(404, exception.getStatusCode());
+    }
+
+    @Test
+    void shouldThrowBackendApiExceptionOn401InGetFollowing() {
+        // Given
+        mockWebServer.enqueue(new MockResponse()
+                .setResponseCode(401)
+                .setBody("{\"error\":\"UNAUTHORIZED\"}"));
+
+        // When & Then
+        BackendApiException exception = assertThrows(BackendApiException.class,
+                () -> client.getFollowing("invalid-token", "user", 0, 20));
+        assertEquals(401, exception.getStatusCode());
+    }
+
+    @Test
+    void shouldThrowBackendApiExceptionOn404InGetFollowing() {
+        // Given
+        mockWebServer.enqueue(new MockResponse()
+                .setResponseCode(404)
+                .setBody("{\"error\":\"USER_NOT_FOUND\"}"));
+
+        // When & Then
+        BackendApiException exception = assertThrows(BackendApiException.class,
+                () -> client.getFollowing("token", "nonexistent-user", 0, 20));
+        assertEquals(404, exception.getStatusCode());
     }
 }
