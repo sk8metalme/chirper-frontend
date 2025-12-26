@@ -71,7 +71,7 @@ class BackendApiClientTest {
         assertEquals("user123", response.userId());
 
         RecordedRequest request = mockWebServer.takeRequest();
-        assertEquals("/api/auth/login", request.getPath());
+        assertEquals("/api/v1/auth/login", request.getPath());
         assertEquals("POST", request.getMethod());
         assertTrue(request.getBody().readUtf8().contains("\"username\":\"testuser\""));
     }
@@ -109,7 +109,7 @@ class BackendApiClientTest {
         assertEquals("登録が完了しました", response.message());
 
         RecordedRequest request = mockWebServer.takeRequest();
-        assertEquals("/api/auth/register", request.getPath());
+        assertEquals("/api/v1/auth/register", request.getPath());
         assertEquals("POST", request.getMethod());
     }
 
@@ -131,7 +131,7 @@ class BackendApiClientTest {
         assertNotNull(response);
 
         RecordedRequest request = mockWebServer.takeRequest();
-        assertEquals("/api/timeline?page=0&size=20", request.getPath());
+        assertEquals("/api/v1/timeline?page=0&size=20", request.getPath());
         assertEquals("Bearer valid-token", request.getHeader("Authorization"));
     }
 
@@ -175,7 +175,7 @@ class BackendApiClientTest {
         assertNotNull(response);
 
         RecordedRequest request = mockWebServer.takeRequest();
-        assertEquals("/api/users/user123", request.getPath());
+        assertEquals("/api/v1/users/user123", request.getPath());
         assertEquals("Bearer valid-token", request.getHeader("Authorization"));
     }
 
@@ -196,7 +196,7 @@ class BackendApiClientTest {
 
         // Then
         RecordedRequest request = mockWebServer.takeRequest();
-        assertEquals("/api/tweets", request.getPath());
+        assertEquals("/api/v1/tweets", request.getPath());
         assertEquals("POST", request.getMethod());
         assertEquals("Bearer valid-token", request.getHeader("Authorization"));
         assertTrue(request.getBody().readUtf8().contains("\"content\":\"Hello, Chirper!\""));
@@ -216,7 +216,7 @@ class BackendApiClientTest {
 
         // Then
         RecordedRequest request = mockWebServer.takeRequest();
-        assertEquals("/api/users/user456/follow", request.getPath());
+        assertEquals("/api/v1/users/user456/follow", request.getPath());
         assertEquals("POST", request.getMethod());
         assertEquals("Bearer valid-token", request.getHeader("Authorization"));
     }
@@ -235,7 +235,7 @@ class BackendApiClientTest {
 
         // Then
         RecordedRequest request = mockWebServer.takeRequest();
-        assertEquals("/api/users/user456/follow", request.getPath());
+        assertEquals("/api/v1/users/user456/follow", request.getPath());
         assertEquals("DELETE", request.getMethod());
         assertEquals("Bearer valid-token", request.getHeader("Authorization"));
     }
@@ -264,7 +264,7 @@ class BackendApiClientTest {
 
         // Then
         RecordedRequest request = mockWebServer.takeRequest();
-        assertEquals("/api/tweets/tweet123/like", request.getPath());
+        assertEquals("/api/v1/tweets/tweet123/like", request.getPath());
         assertEquals("POST", request.getMethod());
         assertEquals("Bearer valid-token", request.getHeader("Authorization"));
     }
@@ -283,7 +283,7 @@ class BackendApiClientTest {
 
         // Then
         RecordedRequest request = mockWebServer.takeRequest();
-        assertEquals("/api/tweets/tweet123/like", request.getPath());
+        assertEquals("/api/v1/tweets/tweet123/like", request.getPath());
         assertEquals("DELETE", request.getMethod());
         assertEquals("Bearer valid-token", request.getHeader("Authorization"));
     }
@@ -302,7 +302,7 @@ class BackendApiClientTest {
 
         // Then
         RecordedRequest request = mockWebServer.takeRequest();
-        assertEquals("/api/tweets/tweet123/retweet", request.getPath());
+        assertEquals("/api/v1/tweets/tweet123/retweet", request.getPath());
         assertEquals("POST", request.getMethod());
         assertEquals("Bearer valid-token", request.getHeader("Authorization"));
     }
@@ -321,7 +321,7 @@ class BackendApiClientTest {
 
         // Then
         RecordedRequest request = mockWebServer.takeRequest();
-        assertEquals("/api/tweets/tweet123/retweet", request.getPath());
+        assertEquals("/api/v1/tweets/tweet123/retweet", request.getPath());
         assertEquals("DELETE", request.getMethod());
         assertEquals("Bearer valid-token", request.getHeader("Authorization"));
     }
@@ -340,7 +340,7 @@ class BackendApiClientTest {
 
         // Then
         RecordedRequest request = mockWebServer.takeRequest();
-        assertEquals("/api/tweets/tweet123", request.getPath());
+        assertEquals("/api/v1/tweets/tweet123", request.getPath());
         assertEquals("DELETE", request.getMethod());
         assertEquals("Bearer valid-token", request.getHeader("Authorization"));
     }
@@ -365,7 +365,7 @@ class BackendApiClientTest {
         // Then
         assertNotNull(response);
         RecordedRequest request = mockWebServer.takeRequest();
-        assertEquals("/api/users/profile", request.getPath());
+        assertEquals("/api/v1/users/profile", request.getPath());
         assertEquals("PUT", request.getMethod());
         assertEquals("Bearer valid-token", request.getHeader("Authorization"));
         String requestBody = request.getBody().readUtf8();
@@ -817,7 +817,7 @@ class BackendApiClientTest {
 
         RecordedRequest request = mockWebServer.takeRequest();
         assertEquals("GET", request.getMethod());
-        assertTrue(request.getPath().contains("/api/tweets/" + tweetId));
+        assertTrue(request.getPath().contains("/api/v1/tweets/" + tweetId));
     }
 
     @Test
@@ -867,7 +867,7 @@ class BackendApiClientTest {
 
         RecordedRequest request = mockWebServer.takeRequest();
         assertEquals("GET", request.getMethod());
-        assertTrue(request.getPath().contains("/api/users/profile/" + username));
+        assertTrue(request.getPath().contains("/api/v1/users/profile/" + username));
     }
 
     @Test

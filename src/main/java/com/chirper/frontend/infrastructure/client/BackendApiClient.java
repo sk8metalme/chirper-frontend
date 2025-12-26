@@ -32,7 +32,7 @@ public class BackendApiClient {
     public LoginResponse login(String username, String password) {
         try {
             return webClient.post()
-                    .uri("/api/auth/login")
+                    .uri("/api/v1/auth/login")
                     .bodyValue(Map.of(
                             "username", username,
                             "password", password
@@ -53,7 +53,7 @@ public class BackendApiClient {
     public RegisterResponse register(String username, String email, String password) {
         try {
             return webClient.post()
-                    .uri("/api/auth/register")
+                    .uri("/api/v1/auth/register")
                     .bodyValue(Map.of(
                             "username", username,
                             "email", email,
@@ -78,7 +78,7 @@ public class BackendApiClient {
             int safeSize = Math.min(size, MAX_PAGE_SIZE);
             return webClient.get()
                     .uri(uriBuilder -> uriBuilder
-                            .path("/api/timeline")
+                            .path("/api/v1/timeline")
                             .queryParam("page", page)
                             .queryParam("size", safeSize)
                             .build())
@@ -99,7 +99,7 @@ public class BackendApiClient {
     public UserProfileDto getUserProfile(String jwtToken, String userId) {
         try {
             return webClient.get()
-                    .uri("/api/users/{userId}", userId)
+                    .uri("/api/v1/users/{userId}", userId)
                     .header("Authorization", "Bearer " + jwtToken)
                     .retrieve()
                     .bodyToMono(UserProfileDto.class)
@@ -117,7 +117,7 @@ public class BackendApiClient {
     public UserProfileDto getUserProfile(String username) {
         try {
             return webClient.get()
-                    .uri("/api/users/profile/{username}", username)
+                    .uri("/api/v1/users/profile/{username}", username)
                     .retrieve()
                     .bodyToMono(UserProfileDto.class)
                     .block();
@@ -134,7 +134,7 @@ public class BackendApiClient {
     public TweetDto createTweet(String jwtToken, String content) {
         try {
             return webClient.post()
-                    .uri("/api/tweets")
+                    .uri("/api/v1/tweets")
                     .header("Authorization", "Bearer " + jwtToken)
                     .bodyValue(Map.of("content", content))
                     .retrieve()
@@ -153,7 +153,7 @@ public class BackendApiClient {
     public TweetDto getTweet(String tweetId) {
         try {
             return webClient.get()
-                    .uri("/api/tweets/{tweetId}", tweetId)
+                    .uri("/api/v1/tweets/{tweetId}", tweetId)
                     .retrieve()
                     .bodyToMono(TweetDto.class)
                     .block();
@@ -170,7 +170,7 @@ public class BackendApiClient {
     public void followUser(String jwtToken, String userId) {
         try {
             webClient.post()
-                    .uri("/api/users/{userId}/follow", userId)
+                    .uri("/api/v1/users/{userId}/follow", userId)
                     .header("Authorization", "Bearer " + jwtToken)
                     .retrieve()
                     .bodyToMono(Void.class)
@@ -188,7 +188,7 @@ public class BackendApiClient {
     public void unfollowUser(String jwtToken, String userId) {
         try {
             webClient.delete()
-                    .uri("/api/users/{userId}/follow", userId)
+                    .uri("/api/v1/users/{userId}/follow", userId)
                     .header("Authorization", "Bearer " + jwtToken)
                     .retrieve()
                     .bodyToMono(Void.class)
@@ -206,7 +206,7 @@ public class BackendApiClient {
     public void likeTweet(String jwtToken, String tweetId) {
         try {
             webClient.post()
-                    .uri("/api/tweets/{tweetId}/like", tweetId)
+                    .uri("/api/v1/tweets/{tweetId}/like", tweetId)
                     .header("Authorization", "Bearer " + jwtToken)
                     .retrieve()
                     .bodyToMono(Void.class)
@@ -224,7 +224,7 @@ public class BackendApiClient {
     public void unlikeTweet(String jwtToken, String tweetId) {
         try {
             webClient.delete()
-                    .uri("/api/tweets/{tweetId}/like", tweetId)
+                    .uri("/api/v1/tweets/{tweetId}/like", tweetId)
                     .header("Authorization", "Bearer " + jwtToken)
                     .retrieve()
                     .bodyToMono(Void.class)
@@ -242,7 +242,7 @@ public class BackendApiClient {
     public void retweetTweet(String jwtToken, String tweetId) {
         try {
             webClient.post()
-                    .uri("/api/tweets/{tweetId}/retweet", tweetId)
+                    .uri("/api/v1/tweets/{tweetId}/retweet", tweetId)
                     .header("Authorization", "Bearer " + jwtToken)
                     .retrieve()
                     .bodyToMono(Void.class)
@@ -260,7 +260,7 @@ public class BackendApiClient {
     public void unretweetTweet(String jwtToken, String tweetId) {
         try {
             webClient.delete()
-                    .uri("/api/tweets/{tweetId}/retweet", tweetId)
+                    .uri("/api/v1/tweets/{tweetId}/retweet", tweetId)
                     .header("Authorization", "Bearer " + jwtToken)
                     .retrieve()
                     .bodyToMono(Void.class)
@@ -278,7 +278,7 @@ public class BackendApiClient {
     public void deleteTweet(String jwtToken, String tweetId) {
         try {
             webClient.delete()
-                    .uri("/api/tweets/{tweetId}", tweetId)
+                    .uri("/api/v1/tweets/{tweetId}", tweetId)
                     .header("Authorization", "Bearer " + jwtToken)
                     .retrieve()
                     .bodyToMono(Void.class)
@@ -296,7 +296,7 @@ public class BackendApiClient {
     public UserProfileDto updateProfile(String jwtToken, String displayName, String bio, String avatarUrl) {
         try {
             return webClient.put()
-                    .uri("/api/users/profile")
+                    .uri("/api/v1/users/profile")
                     .header("Authorization", "Bearer " + jwtToken)
                     .bodyValue(Map.of(
                             "displayName", displayName != null ? displayName : "",
@@ -322,7 +322,7 @@ public class BackendApiClient {
             int safeSize = Math.min(size, MAX_PAGE_SIZE);
             return webClient.get()
                     .uri(uriBuilder -> uriBuilder
-                            .path("/api/users/{username}/followers")
+                            .path("/api/v1/users/{username}/followers")
                             .queryParam("page", page)
                             .queryParam("size", safeSize)
                             .build(username))
@@ -346,7 +346,7 @@ public class BackendApiClient {
             int safeSize = Math.min(size, MAX_PAGE_SIZE);
             return webClient.get()
                     .uri(uriBuilder -> uriBuilder
-                            .path("/api/users/{username}/following")
+                            .path("/api/v1/users/{username}/following")
                             .queryParam("page", page)
                             .queryParam("size", safeSize)
                             .build(username))
