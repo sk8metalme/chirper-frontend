@@ -87,13 +87,30 @@ public class BackendApiClient {
     }
 
     /**
-     * ユーザープロフィールを取得
+     * ユーザープロフィールを取得（userIdベース、認証あり）
      */
     public UserProfileDto getUserProfile(String jwtToken, String userId) {
         try {
             return webClient.get()
                     .uri("/api/users/{userId}", userId)
                     .header("Authorization", "Bearer " + jwtToken)
+                    .retrieve()
+                    .bodyToMono(UserProfileDto.class)
+                    .block();
+        } catch (WebClientResponseException e) {
+            throw mapException(e);
+        } catch (Exception e) {
+            throw new BackendApiException("ユーザープロフィール取得中にエラーが発生しました", e);
+        }
+    }
+
+    /**
+     * ユーザープロフィールを取得（usernameベース、認証なし）
+     */
+    public UserProfileDto getUserProfile(String username) {
+        try {
+            return webClient.get()
+                    .uri("/api/users/profile/{username}", username)
                     .retrieve()
                     .bodyToMono(UserProfileDto.class)
                     .block();
@@ -120,6 +137,23 @@ public class BackendApiClient {
             throw mapException(e);
         } catch (Exception e) {
             throw new BackendApiException("ツイート作成中にエラーが発生しました", e);
+        }
+    }
+
+    /**
+     * ツイートを取得
+     */
+    public TweetDto getTweet(String tweetId) {
+        try {
+            return webClient.get()
+                    .uri("/api/tweets/{tweetId}", tweetId)
+                    .retrieve()
+                    .bodyToMono(TweetDto.class)
+                    .block();
+        } catch (WebClientResponseException e) {
+            throw mapException(e);
+        } catch (Exception e) {
+            throw new BackendApiException("ツイート取得中にエラーが発生しました", e);
         }
     }
 

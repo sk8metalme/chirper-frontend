@@ -44,8 +44,7 @@ public class BackendApiRepositoryImpl implements IBackendApiRepository {
 
     @Override
     public TweetDto getTweet(String tweetId) {
-        // TODO: BackendApiClientに実装を追加する必要がある
-        throw new UnsupportedOperationException("getTweet is not yet implemented");
+        return apiClient.getTweet(tweetId);
     }
 
     @Override
@@ -55,8 +54,7 @@ public class BackendApiRepositoryImpl implements IBackendApiRepository {
 
     @Override
     public UserProfileDto getUserProfile(String username) {
-        // TODO: BackendApiClientに実装を追加する必要がある（usernameベース）
-        throw new UnsupportedOperationException("getUserProfile by username is not yet implemented");
+        return apiClient.getUserProfile(username);
     }
 
     @Override

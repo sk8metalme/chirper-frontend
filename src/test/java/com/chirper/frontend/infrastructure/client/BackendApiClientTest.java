@@ -4,6 +4,7 @@ import com.chirper.frontend.application.dto.FollowListDto;
 import com.chirper.frontend.application.dto.LoginResponse;
 import com.chirper.frontend.application.dto.RegisterResponse;
 import com.chirper.frontend.application.dto.TimelineDto;
+import com.chirper.frontend.application.dto.TweetDto;
 import com.chirper.frontend.application.dto.UserProfileDto;
 import com.chirper.frontend.infrastructure.exception.BackendApiException;
 import okhttp3.mockwebserver.MockResponse;
@@ -755,5 +756,108 @@ class BackendApiClientTest {
         // size=100 に制限されていることを確認
         assertTrue(request.getPath().contains("size=100"));
         assertFalse(request.getPath().contains("size=1000"));
+    }
+
+    @Test
+    void shouldGetTweetSuccessfully() throws InterruptedException {
+        // Given
+        String tweetId = "tweet123";
+        String responseJson = """
+                {
+                    "tweetId": "tweet123",
+                    "userId": "user1",
+                    "username": "testuser",
+                    "content": "Hello, world!",
+                    "createdAt": "2024-01-01T00:00:00Z",
+                    "likeCount": 5,
+                    "retweetCount": 2,
+                    "likedByCurrentUser": false,
+                    "retweetedByCurrentUser": false
+                }
+                """;
+
+        mockWebServer.enqueue(new MockResponse()
+                .setBody(responseJson)
+                .addHeader("Content-Type", "application/json"));
+
+        // When
+        TweetDto result = client.getTweet(tweetId);
+
+        // Then
+        assertNotNull(result);
+        assertEquals("tweet123", result.tweetId());
+        assertEquals("user1", result.userId());
+        assertEquals("testuser", result.username());
+        assertEquals("Hello, world!", result.content());
+        assertEquals(5, result.likeCount());
+        assertEquals(2, result.retweetCount());
+        assertFalse(result.likedByCurrentUser());
+        assertFalse(result.retweetedByCurrentUser());
+
+        RecordedRequest request = mockWebServer.takeRequest();
+        assertEquals("GET", request.getMethod());
+        assertTrue(request.getPath().contains("/api/tweets/" + tweetId));
+    }
+
+    @Test
+    void shouldThrowBackendApiExceptionOnNetworkErrorInGetTweet() {
+        // Given
+        String tweetId = "tweet123";
+        mockWebServer.enqueue(new MockResponse().setSocketPolicy(SocketPolicy.DISCONNECT_AT_START));
+
+        // When & Then
+        BackendApiException exception = assertThrows(BackendApiException.class,
+                () -> client.getTweet(tweetId));
+        assertEquals("ツイート取得中にエラーが発生しました", exception.getMessage());
+    }
+
+    @Test
+    void shouldGetUserProfileByUsernameSuccessfully() throws InterruptedException {
+        // Given
+        String username = "testuser";
+        String responseJson = """
+                {
+                    "userId": "user123",
+                    "username": "testuser",
+                    "email": "test@example.com",
+                    "bio": "Test bio",
+                    "followerCount": 10,
+                    "followingCount": 5,
+                    "followedByCurrentUser": false
+                }
+                """;
+
+        mockWebServer.enqueue(new MockResponse()
+                .setBody(responseJson)
+                .addHeader("Content-Type", "application/json"));
+
+        // When
+        UserProfileDto result = client.getUserProfile(username);
+
+        // Then
+        assertNotNull(result);
+        assertEquals("user123", result.userId());
+        assertEquals("testuser", result.username());
+        assertEquals("test@example.com", result.email());
+        assertEquals("Test bio", result.bio());
+        assertEquals(10, result.followerCount());
+        assertEquals(5, result.followingCount());
+        assertFalse(result.followedByCurrentUser());
+
+        RecordedRequest request = mockWebServer.takeRequest();
+        assertEquals("GET", request.getMethod());
+        assertTrue(request.getPath().contains("/api/users/profile/" + username));
+    }
+
+    @Test
+    void shouldThrowBackendApiExceptionOnNetworkErrorInGetUserProfileByUsername() {
+        // Given
+        String username = "testuser";
+        mockWebServer.enqueue(new MockResponse().setSocketPolicy(SocketPolicy.DISCONNECT_AT_START));
+
+        // When & Then
+        BackendApiException exception = assertThrows(BackendApiException.class,
+                () -> client.getUserProfile(username));
+        assertEquals("ユーザープロフィール取得中にエラーが発生しました", exception.getMessage());
     }
 }
