@@ -136,6 +136,27 @@ class BackendApiClientTest {
     }
 
     @Test
+    void shouldLimitSizeToMaximumInGetTimeline() throws InterruptedException {
+        // Given
+        String jwtToken = "valid-token";
+        int requestedSize = 500; // 上限を超えるサイズ
+        String responseJson = "{\"tweets\":[],\"currentPage\":0,\"totalPages\":1,\"totalElements\":0}";
+
+        mockWebServer.enqueue(new MockResponse()
+                .setBody(responseJson)
+                .addHeader("Content-Type", "application/json"));
+
+        // When
+        client.getTimeline(jwtToken, 0, requestedSize);
+
+        // Then
+        RecordedRequest request = mockWebServer.takeRequest();
+        // size=100 に制限されていることを確認
+        assertTrue(request.getPath().contains("size=100"));
+        assertFalse(request.getPath().contains("size=500"));
+    }
+
+    @Test
     void shouldGetUserProfileSuccessfully() throws InterruptedException {
         // Given
         String jwtToken = "valid-token";
