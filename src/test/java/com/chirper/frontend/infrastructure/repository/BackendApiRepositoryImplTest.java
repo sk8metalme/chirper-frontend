@@ -84,12 +84,19 @@ class BackendApiRepositoryImplTest {
 
     @Test
     void shouldDelegateGetUserProfile() {
-        // Given - getUserProfile now takes username only and throws UnsupportedOperationException
+        // Given
         String username = "testuser";
+        UserProfileDto expectedProfile = new UserProfileDto(
+                "user123", "testuser", "test@example.com", "Test bio", 10, 5, false
+        );
+        when(apiClient.getUserProfile(username)).thenReturn(expectedProfile);
 
-        // When & Then
-        assertThrows(UnsupportedOperationException.class,
-                () -> repository.getUserProfile(username));
+        // When
+        UserProfileDto result = repository.getUserProfile(username);
+
+        // Then
+        assertEquals(expectedProfile, result);
+        verify(apiClient).getUserProfile(username);
     }
 
     @Test
@@ -212,13 +219,21 @@ class BackendApiRepositoryImplTest {
     }
 
     @Test
-    void shouldThrowUnsupportedOperationExceptionForGetTweet() {
+    void shouldDelegateGetTweet() {
         // Given
         String tweetId = "tweet123";
+        TweetDto expectedTweet = new TweetDto(
+                "tweet123", "user1", "testuser", "Hello, world!",
+                java.time.Instant.parse("2024-01-01T00:00:00Z"), 5, 2, false, false
+        );
+        when(apiClient.getTweet(tweetId)).thenReturn(expectedTweet);
 
-        // When & Then
-        assertThrows(UnsupportedOperationException.class,
-                () -> repository.getTweet(tweetId));
+        // When
+        TweetDto result = repository.getTweet(tweetId);
+
+        // Then
+        assertEquals(expectedTweet, result);
+        verify(apiClient).getTweet(tweetId);
     }
 
     @Test
