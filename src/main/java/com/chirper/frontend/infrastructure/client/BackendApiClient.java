@@ -15,6 +15,11 @@ import java.util.Map;
 @Component
 public class BackendApiClient {
 
+    /**
+     * ページサイズの最大値 (DoS対策)
+     */
+    private static final int MAX_PAGE_SIZE = 100;
+
     private final WebClient webClient;
 
     public BackendApiClient(WebClient webClient) {
@@ -311,8 +316,8 @@ public class BackendApiClient {
      */
     public FollowListDto getFollowers(String jwtToken, String username, int page, int size) {
         try {
-            // DoS対策: size上限を100に制限
-            int safeSize = Math.min(size, 100);
+            // DoS対策: size上限をMAX_PAGE_SIZEに制限
+            int safeSize = Math.min(size, MAX_PAGE_SIZE);
             return webClient.get()
                     .uri(uriBuilder -> uriBuilder
                             .path("/api/users/{username}/followers")
@@ -335,8 +340,8 @@ public class BackendApiClient {
      */
     public FollowListDto getFollowing(String jwtToken, String username, int page, int size) {
         try {
-            // DoS対策: size上限を100に制限
-            int safeSize = Math.min(size, 100);
+            // DoS対策: size上限をMAX_PAGE_SIZEに制限
+            int safeSize = Math.min(size, MAX_PAGE_SIZE);
             return webClient.get()
                     .uri(uriBuilder -> uriBuilder
                             .path("/api/users/{username}/following")

@@ -227,4 +227,77 @@ class SocialControllerTest {
                 .andExpect(model().attribute("username", "testuser"))
                 .andExpect(model().attribute("following", Collections.emptyList()));
     }
+
+    // ========== Coverage Improvement Tests ==========
+
+    @Test
+    void shouldHandleErrorInUnfollowUser() throws Exception {
+        // Arrange
+        doThrow(new RuntimeException("Unfollow failed"))
+                .when(unfollowUserUseCase).execute(any(), anyString());
+
+        // Act & Assert
+        mockMvc.perform(post("/unfollow/user456")
+                        .with(csrf())
+                        .with(user("testuser"))
+                        .header("Referer", "http://localhost/timeline"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/timeline"))
+                .andExpect(flash().attributeExists("error"));
+    }
+
+    @Test
+    void shouldHandleBlankRefererInFollowUser() throws Exception {
+        // Arrange
+        when(sessionManager.getJwtToken(any())).thenReturn("valid-token");
+
+        // Act & Assert - blank referer should redirect to /timeline
+        mockMvc.perform(post("/follow/user456")
+                        .with(csrf())
+                        .with(user("testuser"))
+                        .header("Referer", ""))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/timeline"));
+    }
+
+    @Test
+    void shouldHandleNonAllowedPathInFollowUser() throws Exception {
+        // Arrange
+        when(sessionManager.getJwtToken(any())).thenReturn("valid-token");
+
+        // Act & Assert - non-allowed path should redirect to /timeline
+        mockMvc.perform(post("/follow/user456")
+                        .with(csrf())
+                        .with(user("testuser"))
+                        .header("Referer", "http://localhost/admin/settings"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/timeline"));
+    }
+
+    @Test
+    void shouldHandleInvalidURIInFollowUser() throws Exception {
+        // Arrange
+        when(sessionManager.getJwtToken(any())).thenReturn("valid-token");
+
+        // Act & Assert - invalid URI should redirect to /timeline
+        mockMvc.perform(post("/follow/user456")
+                        .with(csrf())
+                        .with(user("testuser"))
+                        .header("Referer", "http://[invalid]"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/timeline"));
+    }
+
+    @Test
+    void shouldHandleNullRefererInUnfollowUser() throws Exception {
+        // Arrange
+        when(sessionManager.getJwtToken(any())).thenReturn("valid-token");
+
+        // Act & Assert - null referer should redirect to /timeline
+        mockMvc.perform(post("/unfollow/user456")
+                        .with(csrf())
+                        .with(user("testuser")))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/timeline"));
+    }
 }

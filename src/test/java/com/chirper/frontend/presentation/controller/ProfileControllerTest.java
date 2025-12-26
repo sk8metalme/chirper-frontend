@@ -13,6 +13,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
@@ -147,5 +148,99 @@ class ProfileControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(view().name("profile-edit"))
                 .andExpect(model().attributeExists("error"));
+    }
+
+    // ========== Coverage Improvement Tests ==========
+
+    @Test
+    void shouldHandleNullUsernameInEditProfileForm() throws Exception {
+        // Given
+        when(sessionManager.getUsername(any())).thenReturn(null);
+
+        // When & Then
+        mockMvc.perform(get("/profile/edit")
+                        .with(user("testuser")))
+                .andExpect(status().isOk())
+                .andExpect(view().name("profile-edit"))
+                .andExpect(model().attributeExists("error"))
+                .andExpect(model().attribute("error", "ログインが必要です"));
+
+        verify(displayUserProfileUseCase, never()).execute(anyString());
+    }
+
+    @Test
+    void shouldHandleExceptionInEditProfileForm() throws Exception {
+        // Given
+        when(sessionManager.getUsername(any())).thenReturn("testuser");
+        when(displayUserProfileUseCase.execute("testuser"))
+                .thenThrow(new RuntimeException("API Error"));
+
+        // When & Then
+        mockMvc.perform(get("/profile/edit")
+                        .with(user("testuser")))
+                .andExpect(status().isOk())
+                .andExpect(view().name("profile-edit"))
+                .andExpect(model().attributeExists("error"))
+                .andExpect(model().attribute("error", "プロフィール情報の取得に失敗しました"));
+    }
+
+    @Test
+    void shouldHandleNullBioInEditProfileForm() throws Exception {
+        // Given
+        when(sessionManager.getUsername(any())).thenReturn("testuser");
+        UserProfileDto profileWithNullBio = new UserProfileDto(
+                "user123", "testuser", "test@example.com",
+                null, // bio is null
+                10, 5, false
+        );
+        when(displayUserProfileUseCase.execute("testuser")).thenReturn(profileWithNullBio);
+
+        // When & Then
+        mockMvc.perform(get("/profile/edit")
+                        .with(user("testuser")))
+                .andExpect(status().isOk())
+                .andExpect(view().name("profile-edit"))
+                .andExpect(model().attributeExists("profileForm"));
+
+        // Verify that empty string is used for null bio
+        verify(displayUserProfileUseCase).execute("testuser");
+    }
+
+    @Test
+    void shouldHandleExceptionInUpdateProfile() throws Exception {
+        // Given
+        when(updateProfileUseCase.execute(any(), anyString(), anyString(), anyString()))
+                .thenThrow(new RuntimeException("Update failed"));
+
+        // When & Then
+        mockMvc.perform(post("/profile/edit")
+                        .with(csrf())
+                        .with(user("testuser"))
+                        .param("displayName", "Test")
+                        .param("bio", "Test bio")
+                        .param("avatarUrl", ""))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/profile/edit"))
+                .andExpect(flash().attributeExists("error"));
+    }
+
+    @Test
+    void shouldHandleNullCurrentUsernameInProfile() throws Exception {
+        // Given
+        UserProfileDto profile = new UserProfileDto(
+                "user123", "testuser", "test@example.com",
+                "Test bio", 10, 5, false
+        );
+        when(displayUserProfileUseCase.execute("testuser")).thenReturn(profile);
+        when(sessionManager.getUsername(any())).thenReturn(null);
+
+        // When & Then
+        mockMvc.perform(get("/profile/testuser")
+                        .with(user("anonymous")))
+                .andExpect(status().isOk())
+                .andExpect(view().name("profile"))
+                .andExpect(model().attributeExists("profile"))
+                .andExpect(model().attributeExists("isOwner"))
+                .andExpect(model().attribute("isOwner", false));
     }
 }
