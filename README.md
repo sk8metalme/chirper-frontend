@@ -78,15 +78,26 @@ build/reports/tests/e2eTest/index.html
 src/test/java/com/chirper/frontend/e2e/
 ├── config/
 │   └── SelenideConfig.java       # Selenide設定（環境自動検出）
-├── pages/
+├── pages/ (5クラス)
 │   ├── BasePage.java              # Page Object基底クラス
 │   ├── LoginPage.java             # ログインページ
 │   ├── RegisterPage.java          # ユーザー登録ページ
-│   └── TimelinePage.java          # タイムラインページ
-└── tests/
-    ├── AuthFlowTest.java          # 認証フローテスト
-    └── TweetFlowTest.java         # ツイートフローテスト
+│   ├── TimelinePage.java          # タイムラインページ
+│   └── ProfilePage.java           # プロフィールページ
+└── tests/ (3クラス、12テストケース)
+    ├── AuthFlowTest.java          # 認証フローテスト (4 tests)
+    ├── TweetFlowTest.java         # ツイートフローテスト (4 tests)
+    └── SocialFlowTest.java        # ソーシャルフローテスト (4 tests)
 ```
+
+#### テストカバレッジ
+
+| テストクラス | テスト数 | 検証内容 |
+|------------|---------|---------|
+| AuthFlowTest | 4 | ユーザー登録、ログイン、アクセス制御 |
+| TweetFlowTest | 4 | ツイート投稿、いいね、削除 |
+| SocialFlowTest | 4 | フォロー、アンフォロー、タイムライン |
+| **合計** | **12** | **全クリティカルフロー** |
 
 ### E2Eテストのトラブルシューティング
 
@@ -111,6 +122,12 @@ CI環境では以下の設定が自動的に適用されます：
 ```
 build/reports/tests/e2e/
 ```
+
+### 詳細なE2Eテストガイド
+
+より詳細なテスト実行手順、トラブルシューティング、ベストプラクティスについては、以下をご覧ください：
+
+📘 **[E2E_TEST_GUIDE.md](./E2E_TEST_GUIDE.md)** - 包括的なE2Eテスト実行ガイド
 
 ## CI/CD
 
