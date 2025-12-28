@@ -94,12 +94,12 @@ public class BackendApiClient {
     }
 
     /**
-     * ユーザープロフィールを取得（userIdベース、認証あり）
+     * ユーザープロフィールを取得（usernameベース、認証あり）
      */
-    public UserProfileDto getUserProfile(String jwtToken, String userId) {
+    public UserProfileDto getUserProfile(String jwtToken, String username) {
         try {
             return webClient.get()
-                    .uri("/api/v1/users/{userId}", userId)
+                    .uri("/api/v1/users/{username}", username)
                     .header("Authorization", "Bearer " + jwtToken)
                     .retrieve()
                     .bodyToMono(UserProfileDto.class)
