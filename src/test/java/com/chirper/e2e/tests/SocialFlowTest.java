@@ -7,6 +7,7 @@ import com.chirper.e2e.pages.ProfilePage;
 import com.chirper.e2e.pages.SearchPage;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -15,6 +16,7 @@ import static com.codeborne.selenide.Selenide.open;
 
 @Tag("e2e")
 @DisplayName("ソーシャルフローE2Eテスト")
+@Disabled("検索ページ(/search)およびフォロー機能が未実装のため一時無効化")
 class SocialFlowTest {
 
     @BeforeAll

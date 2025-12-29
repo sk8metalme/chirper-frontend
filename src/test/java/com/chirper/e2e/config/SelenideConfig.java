@@ -13,7 +13,12 @@ public class SelenideConfig {
 
         // Selenide設定
         Configuration.browser = "chrome";
-        Configuration.headless = false;  // Debug: headless disabled
+
+        // CI環境またはシステムプロパティからheadlessモードを判定
+        String headlessProp = System.getProperty("selenide.headless",
+            System.getenv("CI") != null ? "true" : "false");
+        Configuration.headless = Boolean.parseBoolean(headlessProp);
+
         Configuration.baseUrl = "http://localhost:8081";  // Frontend port
         Configuration.timeout = 10000;  // 10秒待機
         Configuration.screenshots = true;
